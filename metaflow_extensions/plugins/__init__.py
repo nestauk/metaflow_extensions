@@ -1,9 +1,9 @@
 """Define extensions for metaflow to import."""
 from typing import List
 
+from .cli import cli_custom
 from .install_step_decorator import InstallProjectStepDecorator
 from .project_environment import ProjectEnvironment
-
 
 FLOW_DECORATORS = []
 STEP_DECORATORS = [InstallProjectStepDecorator]
@@ -16,4 +16,4 @@ MONITOR_SIDECARS = {}
 
 def get_plugin_cli() -> List:
     """Return list of click multi-commands to extend metaflow CLI."""
-    return []
+    return [cli_custom]
