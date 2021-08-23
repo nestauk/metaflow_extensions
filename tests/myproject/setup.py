@@ -12,4 +12,3 @@ setup(
     description="Test project",
     author="pytest",
 )
-

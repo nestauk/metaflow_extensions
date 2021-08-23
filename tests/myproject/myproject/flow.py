@@ -5,14 +5,20 @@ class MetaflowCustomTestFlow(FlowSpec):
     """Flow for testing metaflow_custom."""
 
     @step
-    def start(self):
+    def start(self) -> None:
         """Start flow."""
         import myproject
+
+        print(myproject.__path__)
+
         import toolz
+
+        print(toolz.__path__)
+
         self.next(self.end)
 
     @step
-    def end(self):
+    def end(self) -> None:
         """End flow."""
         pass
 
