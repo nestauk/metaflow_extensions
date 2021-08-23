@@ -2,7 +2,7 @@
 # flake8: noqa
 # type: ignore
 
-from conftest import ch_dir, run_flow
+from utils import ch_dir, run_flow
 
 flow_name = "{}/myproject/myproject/flow.py".format
 
@@ -18,10 +18,10 @@ def test_runs_locally(temporary_installed_project):
 #         run_flow(flow_name(temporary_project), environment="conda")
 
 # @pytest.mark.aws
-# def test_runs_batch(project):
-#     with ch_dir(project / "myproject"):
+# def test_runs_batch(temporary_project):
+#     with ch_dir(temporary_project / "myproject"):
 #         run_flow(
-#             flow_name(project),
+#             flow_name(temporary_project),
 #             batch=True,
 #             metadata="service",
 #             datastore="s3",

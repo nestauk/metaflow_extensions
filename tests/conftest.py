@@ -6,7 +6,7 @@ from typing import Iterator
 import pytest
 from _pytest.tmpdir import TempdirFactory
 
-from .utils import install_setup_py, remove_pkg
+from utils import install_setup_py, remove_pkg  # noqa: I
 
 
 @pytest.fixture(scope="session")
