@@ -2,7 +2,9 @@
 # https://gitter.im/metaflow_org/community?at=5de7f82d26eeb8518f691e46
 from typing import List
 
-FLOW_DECORATORS = []
+from .local import LocalOnly
+
+FLOW_DECORATORS = [LocalOnly]
 STEP_DECORATORS = []
 ENVIRONMENTS = []
 
