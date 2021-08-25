@@ -1,6 +1,4 @@
 """Define extensions for metaflow to import."""
-# https://gitter.im/metaflow_org/community?at=5de7f82d26eeb8518f691e46
-
 from typing import List
 
 FLOW_DECORATORS = []

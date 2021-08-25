@@ -1,5 +1,4 @@
 """Test helpers."""
-# type: ignore
 import os
 import subprocess
 import sys
