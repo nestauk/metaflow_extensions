@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from utils import install_setup_py, remove_pkg  # noqa: I
+from utils import install_setup_py, remove_pkg  # noqa: I202
 
 
 MYPROJECT_PATH = Path(__file__).parent / "myproject"

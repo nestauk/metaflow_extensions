@@ -50,5 +50,5 @@ repos:
         entry: flake8
         language: system
         types: [python]
-        # args: ["--config=.flake8"]
+        args: ["--config=setup.cfg"]
         require_serial: true
