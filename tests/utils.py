@@ -1,8 +1,8 @@
+"""Test helpers."""
 # type: ignore
 import os
 import subprocess
 import sys
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -56,17 +56,6 @@ def remove_pkg(pkg_name: str) -> None:
         stdout=subprocess.DEVNULL,
         check=True,
     )
-
-
-@contextmanager
-def ch_dir(path: os.PathLike) -> None:
-    """Context Manager to change directory to `path`."""
-    cwd = os.getcwd()
-    os.chdir(path)
-    try:
-        yield os.getcwd()
-    finally:
-        os.chdir(cwd)
 
 
 def run_flow(

@@ -24,5 +24,6 @@ def from_conf(name, default: Optional[str] = None):
 
 # Path to the client cache
 CLIENT_CACHE_PATH = from_conf("METAFLOW_CLIENT_CACHE_PATH", "/tmp/metaflow_client")
+
 # Maximum size (in bytes) of the cache
-CLIENT_CACHE_MAX_SIZE = from_conf("METAFLOW_CLIENT_CACHE_MAX_SIZE", 10000)
+CLIENT_CACHE_MAX_SIZE = from_conf("METAFLOW_CLIENT_CACHE_MAX_SIZE", "10000")
