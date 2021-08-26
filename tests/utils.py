@@ -86,6 +86,26 @@ def run_flow(
     return out
 
 
+def run_config_flow(
+    flow_path: os.PathLike, config_path: os.PathLike
+) -> subprocess.CompletedProcess:
+    cmd = [
+        sys.executable,
+        str(flow_path),
+        "run-config",
+        str(config_path),
+    ]
+
+    try:
+        out = subprocess.run(cmd, capture_output=True, shell=False, check=True)
+    except subprocess.CalledProcessError as e:
+        logging.error(e.args)
+        logging.error(f"stdout:\n {e.stdout.decode()}")
+        logging.error(f"stderr:\n {e.stderr.decode()}")
+        raise e
+    return out
+
+
 @contextmanager
 def env(**kwargs) -> None:
     """Context Manager to change env variable."""

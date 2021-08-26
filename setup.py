@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-REQUIRES = ["metaflow>=2.4.1"]
+REQUIRES = ["metaflow>=2.4.1", "pyyaml>=5.4.1"]
 
 setup(
     name="metaflow_extensions",

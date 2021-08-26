@@ -58,6 +58,47 @@ This environment:
 
 :bulb: **Tip:** To check what files are being added to the metaflow job package you can run `$python path/to/flow.py package list`
 
+### `run-config` CLI command
+
+New CLI command letting you configure a flow from a YAML file rather than at the command-line.
+
+#### Problem solved
+
+- Make different easy-to-use "profiles", e.g. `dev` for iterating quickly on a local machine, and `prod` for running in production.
+- Less risk of incorrectly escaping string sequences on the command line
+- YAML config makes it easier for collaborators to know what commands should be run because it's not one long line, and allows comments.
+
+#### Usage
+
+Instead of this:
+`python path/to/flow.py --no-pylint --environment conda run --my-json-param '{"key": 2}' --with batch:cpu=10`
+
+You can do this:
+`python path/to/flow.py run-config path/to/config.yaml --key dev` to run the `dev` profile,
+`python path/to/flow.py run-config path/to/config.yaml --key prod` to run the `prod` profile.
+
+```yaml
+# file: path/to/config.yaml
+dev:
+  preflow_kwargs:
+    - datastore: local # faster locally because no overhead of talking to S3
+    - metadata: local
+    - monitor: debugMonitor
+    - ["no-pylint"]
+  flow_kwargs:
+    - my-json-param: { key: 1 }
+    - []
+prod:
+  preflow_kwargs:
+    - environment: conda
+    - ["no-pylint"]
+  flow_kwargs:
+    - my-json-param: { key: 2 }
+    - with: "batch:cpu=10"
+    - namespace: production
+    - ["no-test-mode"]
+```
+
 ### Different default Settings
 
 See `metaflow_extensions.config.metaflow_config.py` for details.
