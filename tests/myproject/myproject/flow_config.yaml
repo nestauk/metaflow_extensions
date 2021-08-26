@@ -1,6 +1,7 @@
 preflow_kwargs:
-  - {}
-  - []
+  - metadata: local
+    environment: local
+  - ["pylint"]
 flow_kwargs:
   - {}
   - []
