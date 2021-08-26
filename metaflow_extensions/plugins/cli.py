@@ -66,8 +66,8 @@ def cli_custom(ctx):
     default=None,
     help="Key in CONFIG_PATH where preflow_kwargs and flow_kwargs are located",
 )
-@click.pass_context
-def run_config(ctx, config_path, key):
+@click.pass_obj
+def run_config(obj, config_path, key):
     """Plugin command: run-config.
 
     Implementation parses the YAML config, and then calls the main metaflow
@@ -105,7 +105,7 @@ def run_config(ctx, config_path, key):
     # Import must be encapsulated to avoid partial imports
     from metaflow.cli import start
 
-    start(obj=ctx.obj, auto_envvar_prefix="METAFLOW")
+    start(obj=obj, auto_envvar_prefix="METAFLOW")
 
 
 def _add_run_id(config_path: Path, key=None) -> Tuple[str, str]:
