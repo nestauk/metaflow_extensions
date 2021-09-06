@@ -1,26 +1,11 @@
-import os
-from typing import Optional
+"""Metaflow configuration over-rides.
 
-from metaflow.metaflow_config import METAFLOW_CONFIG
-
-
-def from_conf(name, default: Optional[str] = None):
-    """Get value of `name` from configuration sources, or `default`.
-
-    Prioritisation order:
-    1) Env variable
-    2) metaflow config JSON
-    3) `default`
-
-    Args:
-        name: Environment variable name.
-        default: Fallback value.
-
-    Returns:
-        Value of `name`, if one exists.
-    """
-    return os.environ.get(name, METAFLOW_CONFIG.get(name, default))
-
+Use `metaflow.from_conf` to set values with the following prioritisation order:
+1) System environment variable
+2) Your Metaflow profile (JSON config)
+3) The value passed to `from_conf`
+"""
+from metaflow.metaflow_config import from_conf
 
 # Path to the client cache
 CLIENT_CACHE_PATH = from_conf("METAFLOW_CLIENT_CACHE_PATH", "/tmp/metaflow_client")

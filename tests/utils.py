@@ -1,4 +1,5 @@
 """Test helpers."""
+import logging
 import os
 import subprocess
 import sys
@@ -87,8 +88,8 @@ def run_flow(
     try:
         out = subprocess.run(cmd, capture_output=True, shell=False, check=True)
     except subprocess.CalledProcessError as e:
-        print(e.args)
-        print("stdout:", e.stdout)
-        print("stderr:", e.stderr)
+        logging.error(e.args)
+        logging.error(f"stdout:\n {e.stdout.decode()}")
+        logging.error(f"stderr:\n {e.stderr.decode()}")
         raise e
     return out
