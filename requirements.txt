@@ -10,5 +10,4 @@ flake8-bandit
 flake8-bugbear
 black
 pytest
-pytest-env
 pre-commit
