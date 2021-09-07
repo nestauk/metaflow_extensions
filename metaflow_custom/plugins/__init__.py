@@ -1,9 +1,13 @@
 """Define extensions for metaflow to import."""
 from typing import List
 
+from .install_step_decorator import InstallProjectStepDecorator
+from .project_environment import ProjectEnvironment
+
+
 FLOW_DECORATORS = []
-STEP_DECORATORS = []
-ENVIRONMENTS = []
+STEP_DECORATORS = [InstallProjectStepDecorator]
+ENVIRONMENTS = [ProjectEnvironment]
 METADATA_PROVIDERS = []
 SIDECARS = {}
 LOGGING_SIDECARS = {}

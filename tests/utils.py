@@ -3,42 +3,19 @@ import logging
 import os
 import subprocess
 import sys
-from pathlib import Path
+from contextlib import contextmanager
 from typing import Optional
 
 
-def install_setup_py(setup_path: Path) -> None:
-    """Install package (folder with setup.py file) at `setup.path`."""
-    pkg_name = subprocess.getoutput(f"{sys.executable} {setup_path}/setup.py --name")
-    print(f"Installing `{pkg_name}` for {sys.executable}...")
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "pip",
-            "--upgrade",
-            "--quiet",
-        ],
-        stdout=subprocess.DEVNULL,
-        check=True,
-    )
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            str(setup_path),
-            "--quiet",
-            # Needed to avoid temporary copies of large dirs like `outputs/`
-            "--use-feature",
-            "in-tree-build",
-        ],
-        stdout=subprocess.DEVNULL,
-        check=True,
-    )
+@contextmanager
+def ch_dir(path: os.PathLike) -> None:
+    """Context Manager to change directory to `path`."""
+    cwd = os.getcwd()
+    os.chdir(path)
+    try:
+        yield os.getcwd()
+    finally:
+        os.chdir(cwd)
 
 
 def remove_pkg(pkg_name: str) -> None:

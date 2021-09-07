@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from utils import install_setup_py, remove_pkg  # noqa: I202
+from metaflow_custom.utils import local_pip_install
+from utils import remove_pkg  # noqa: I
 
 
 MYPROJECT_PATH = Path(__file__).parent / "myproject"
@@ -21,6 +22,6 @@ def temporary_project(tmpdir_factory):
 @pytest.fixture
 def temporary_installed_project(temporary_project):
     """Install `{temporary_project}/myproject/setup.py`."""
-    install_setup_py(f"{temporary_project}/myproject")
+    local_pip_install(f"{temporary_project}/myproject")
     yield temporary_project
     remove_pkg("myproject")
