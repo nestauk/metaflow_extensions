@@ -4,12 +4,15 @@ from itertools import chain
 from os import PathLike
 from pathlib import Path
 from shlex import quote
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import click
 from metaflow.exception import MetaflowException
 
 Config = Dict[str, Any]
+
+ERASE_LAST_LINE = "\033[F"
+ERASE_TO_EOL = "\033[K"
 
 
 class MetaflowConfigNotFound(MetaflowException):  # noqa: D
@@ -74,15 +77,14 @@ def run_config(obj, config_path, key):
     entry-point with the run command.
     This is perhaps a bit hacky but keeps assumptions and code to a minimum
     which will help if Metaflow implementation details change from under us.
-    """
+    """  # noqa: DAR
     config_path = Path(config_path)
     if not config_path.exists():
         raise MetaflowConfigNotFound(config_path)
 
-    config = _parse_config(config_path)[key] if key else _parse_config(config_path)
+    config = _parse_yaml_config(config_path, key)
     preflow_kwargs = _parse_options(config["preflow_kwargs"])
     flow_kwargs = _parse_options(config["flow_kwargs"])
-    run_id = _add_run_id(config_path, key)
 
     # XXX: Hack to avoid double
     #      "Metaflow <version> executing <flow_name> for user:<user>"
@@ -99,7 +101,6 @@ def run_config(obj, config_path, key):
         *cli_preflow_kwargs,
         "run",
         *flow_kwargs,
-        *run_id,
     ]
 
     # Import must be encapsulated to avoid partial imports
@@ -108,29 +109,47 @@ def run_config(obj, config_path, key):
     start(obj=obj, auto_envvar_prefix="METAFLOW")
 
 
-def _add_run_id(config_path: Path, key=None) -> Tuple[str, str]:
-    run_id_path = config_path.with_suffix(".run_id")
-    if key:
-        run_id_path = run_id_path.with_name(f"{run_id_path.stem}_{key}.run_id")
-    return ("--run-id-file", str(run_id_path))
-
-
-def _parse_config(path: PathLike) -> Config:
+def _parse_yaml_config(path: PathLike, key: Optional[str] = None) -> Config:
+    """Parse YAML config at `path`, optionally taking object at `key` if specified."""
     # Import needs to be encapsulated to avoid running in task-time
     # environments without the package installed
     import yaml
 
-    return yaml.safe_load(Path(path).open())
+    config = yaml.safe_load(Path(path).open())
+    config = config[key] if key else config
+
+    if not isinstance(config, dict) and all(
+        isinstance(key, str) for key in config.keys()
+    ):
+        raise TypeError("Config should be a dict with strings as keys.")
+    return config
 
 
-def _serialise(x: Any) -> str:
-    """Serialise `x` to `str` falling back on JSON."""
+def _serialize(x: Any) -> str:
+    """Serialise `x` to `str`.
+
+    Deals with special cases such as `Path` objects, falling back on JSON elsewhere.
+
+    Args:
+        x: An object to serialise
+
+    Returns:
+        x serialized to a string
+
+    Raises:
+        TypeError: If `x` is not JSON serializable
+    """
+    if x is None:
+        return ""
     if isinstance(x, str):
         return x
-    if isinstance(x, Path):
+    elif isinstance(x, Path):
         return str(x)
     else:
-        return json.dumps(x)
+        try:
+            return json.dumps(x)
+        except TypeError:
+            raise
 
 
 def _parse_options(options: Tuple[Dict[str, Any], List[str]]) -> Iterable[str]:
@@ -153,16 +172,16 @@ def _parse_options(options: Tuple[Dict[str, Any], List[str]]) -> Iterable[str]:
     params, flags = options
 
     parsed_params = chain.from_iterable(
-        (f"--{k}", _serialise(v)) for k, v in params.items()
+        (_hyphenise(k), _serialize(v)) for k, v in params.items()
     )
-    parsed_flags = (f"--{k}" for k in flags)
+    parsed_flags = map(_hyphenise, flags)
     return map(quote, [*parsed_params, *parsed_flags])
 
 
-ERASE_LAST_LINE = "\033[F"
-ERASE_TO_EOL = "\033[K"
+def _hyphenise(key: Any) -> str:
+    return f"--{key}" if len(str(key)) > 1 else f"-{key}"
 
 
 def _erase_last_output_line():
     """Remove last line of terminal output."""
-    click.secho(f"{ERASE_LAST_LINE}{ERASE_TO_EOL}", nl=False)
+    click.secho(f"{ERASE_LAST_LINE}{ERASE_TO_EOL}|", nl=False)
