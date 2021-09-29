@@ -30,23 +30,19 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Install Mac dependencies
+      - name: Install Mac dependencies and permissions
         if: runner.os == 'macOS'
         run: |
           brew install git-crypt coreutils
-          $CONDA/bin/python -m pip install --upgrade pip
-          $CONDA/bin/python -m pip install -r requirements.txt
-          $CONDA/bin/python -m pip install .
-          conda config --add channels conda-forge
-
-      - name: Fix Conda permissions on macOS
-        if: runner.os == 'macOS'
-        run: sudo chown -R $UID $CONDA
+          sudo chown -R $UID $CONDA
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update -y && sudo apt-get install -y git-crypt
+
+      - name: Install cross-platform dependencies
+        run: |
           $CONDA/bin/python -m pip install --upgrade pip
           $CONDA/bin/python -m pip install -r requirements.txt
           $CONDA/bin/python -m pip install .
@@ -78,7 +74,7 @@ jobs:
           cp research_daps/config/metaflowconfig/config.json "$HOME/.metaflowconfig/config.json"
 
           # Clean up
-          \rm -rf /tmp/research_daps
+          rm -rf /tmp/research_daps
           rm /tmp/research_daps.key
 
           cd "$PROJECT_DIR"
