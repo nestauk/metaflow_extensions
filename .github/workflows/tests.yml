@@ -1,4 +1,4 @@
-name: Run metaflow_custom tests
+name: Run metaflow_extensions tests
 
 on:
   pull_request:

@@ -1,10 +1,10 @@
-# metaflow_custom (Nesta)
+# metaflow_extensions (Nesta)
 
 Nesta's plugins for [Metaflow](metaflow.org).
 
 ## Install
 
-`pip install git+https://github.com/nestauk/metaflow_custom`
+`pip install git+https://github.com/nestauk/metaflow_extensions`
 
 ## Functionality
 
@@ -50,7 +50,7 @@ With the Conda Metaflow environment (`--environment conda`) and/or running on AW
 
 #### Solution / usage
 
-Having `metaflow-custom` installed activates the "project" environment (`metaflow_custom.plugins.project_environment.ProjectEnvironment`).
+Having `metaflow_extensions` installed activates the "project" environment (`metaflow_extensions.plugins.project_environment.ProjectEnvironment`).
 This environment:
 
 1. Adds your project to the job package.
@@ -60,7 +60,7 @@ This environment:
 
 ### Different default Settings
 
-See `metaflow_custom.config.metaflow_config.py` for details.
+See `metaflow_extensions.config.metaflow_config.py` for details.
 
 List of things changed:
 
@@ -83,11 +83,11 @@ List of things changed:
 
 ### How the metaflow extension mechanism works
 
-Metaflow looks for a package called `metaflow_custom`.
+Metaflow looks for a package called `metaflow_extensions`.
 
-`metaflow_custom.config.metaflow_config` overrides `metaflow.metaflow_config`.
+`metaflow_extensions.config.metaflow_config` overrides `metaflow.metaflow_config`.
 
-`metaflow_custom.plugins` are available as metaflow imports by defining: `FLOW_DECORATORS`, `STEP_DECORATORS`, `ENVIRONMENTS`, `METADATA_PROVIDERS`, `SIDECARS`, `LOGGING_SIDECARS`, `MONITOR_SIDECARS`, and `get_plugin_cli()`.
+`metaflow_extensions.plugins` are available as metaflow imports by defining: `FLOW_DECORATORS`, `STEP_DECORATORS`, `ENVIRONMENTS`, `METADATA_PROVIDERS`, `SIDECARS`, `LOGGING_SIDECARS`, `MONITOR_SIDECARS`, and `get_plugin_cli()`.
 
 (source: https://gitter.im/metaflow_org/community?at=5f99d01ec6fe0131d4bfea36)
 
