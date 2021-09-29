@@ -1,0 +1,84 @@
+name: Run metaflow_custom tests
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  run_test:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+    name: Run pytest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install Mac dependencies and permissions
+        if: runner.os == 'macOS'
+        run: |
+          brew install git-crypt coreutils
+          sudo chown -R $UID $CONDA
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y git-crypt
+
+      - name: Install cross-platform dependencies
+        run: |
+          $CONDA/bin/python -m pip install --upgrade pip
+          $CONDA/bin/python -m pip install -r requirements.txt
+          $CONDA/bin/python -m pip install .
+          conda config --add channels conda-forge
+
+      - name: Git config
+        run: |
+          git config --global user.email test@example.com
+          git config --global user.name "Github Actions"
+
+      - name: Get metaflow config
+        run: |
+          pip install awscli
+
+          export PROJECT_DIR="$(pwd)"
+
+          cd /tmp
+
+          aws s3 cp s3://nesta-production-config/research_daps.key .
+
+          git clone https://www.github.com/nestauk/research_daps
+          cd research_daps
+
+          # Unencrypt research daps
+          git-crypt unlock "/tmp/research_daps.key" &> /dev/null
+
+          # Copy metaflow config
+          mkdir -p "$HOME/.metaflowconfig"
+          cp research_daps/config/metaflowconfig/config.json "$HOME/.metaflowconfig/config.json"
+
+          # Clean up
+          rm -rf /tmp/research_daps
+          rm /tmp/research_daps.key
+
+          cd "$PROJECT_DIR"
+
+      - name: Run pytest
+        run: |
+          $CONDA/bin/python -m pytest -m ""
