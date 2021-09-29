@@ -1,4 +1,4 @@
-metaflow
+metaflow @ git+https://github.com/Netflix/metaflow@9cafaca
 flake8
 darglint
 pep8-naming

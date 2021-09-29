@@ -2,7 +2,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-REQUIRES = ["metaflow>=2.3.7"]
+REQUIRES = ["metaflow"]
 
 setup(
     name="metaflow_extensions",
