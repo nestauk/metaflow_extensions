@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from metaflow_custom.utils import local_pip_install
+from metaflow_extensions.utils import local_pip_install
 from utils import remove_pkg  # noqa: I
 
 

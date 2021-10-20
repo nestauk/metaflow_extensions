@@ -16,7 +16,7 @@ from pathlib import Path
 
 from metaflow.decorators import StepDecorator
 
-from metaflow_custom.utils import (
+from metaflow_extensions.utils import (
     local_pip_install,
     running_in_local_env,
     up_to_project_root,
@@ -37,7 +37,7 @@ class InstallProjectStepDecorator(StepDecorator):
 
     Project package is defined as the closest folder adjacent or above the
     executing flow containing a file in
-    `metaflow_custom.config.metaflow_config.PROJECT_FILES`.
+    `metaflow_extensions.config.metaflow_config.PROJECT_FILES`.
 
     Parameters:
         fail_loudly (bool): If True, then fail if a project package couldn't

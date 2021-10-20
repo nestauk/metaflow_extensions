@@ -10,7 +10,7 @@ from typing import Iterable, Iterator, List, Optional, Tuple
 def has_project_file(path: Path) -> bool:
     """True if `path` contains metaflow project file."""
     # Import encapsulated to avoid import errors
-    from metaflow_custom.config.metaflow_config import PROJECT_FILES
+    from metaflow_extensions.config.metaflow_config import PROJECT_FILES
 
     return any((path / file).exists() for file in PROJECT_FILES)
 

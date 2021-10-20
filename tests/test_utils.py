@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from metaflow_custom.utils import (
+from metaflow_extensions.utils import (
     has_project_file,
     is_path_hidden,
     running_in_local_env,

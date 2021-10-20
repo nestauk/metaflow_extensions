@@ -1,8 +1,8 @@
 from metaflow import FlowSpec, step
 
 
-class MetaflowCustomTestFlow(FlowSpec):
-    """Flow for testing metaflow_custom."""
+class MetaflowExtensionsTestFlow(FlowSpec):
+    """Flow for testing metaflow_extensions."""
 
     @step
     def start(self):
@@ -24,4 +24,4 @@ class MetaflowCustomTestFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    MetaflowCustomTestFlow()
+    MetaflowExtensionsTestFlow()

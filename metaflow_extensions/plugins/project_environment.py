@@ -15,7 +15,7 @@ import click
 from metaflow.metaflow_environment import MetaflowEnvironment
 from metaflow.plugins.conda.conda_environment import CondaEnvironment
 
-from metaflow_custom.utils import (
+from metaflow_extensions.utils import (
     is_path_hidden,
     up_to_project_root,
     walk,
@@ -31,7 +31,7 @@ CondaEnvironment.decospecs = lambda s: ("conda", *s.base_env.decospecs())
 class ProjectEnvironment(MetaflowEnvironment):
     """Metaflow Environment to package up a local project.
 
-    This `metaflow_custom` package sets this as the default environment
+    This `metaflow_extensions` package sets this as the default environment
     but may be overridden by a `config_${METAFLOW_PROFILE}.json` or by
     redefining the `METAFLOW_DEFAULT_ENVIRONMENT` environment variable.
     By defining it as the default environment it allows composition with
@@ -50,7 +50,7 @@ class ProjectEnvironment(MetaflowEnvironment):
     def add_to_package(self):
         """Add project (if project root exists to define it) to the job package."""
         # Import encapsulated to avoid import errors
-        from metaflow_custom.config.metaflow_config import (
+        from metaflow_extensions.config.metaflow_config import (
             DEFAULT_PACKAGE_SUFFIXES,
             PROJECT_FILES,
         )
@@ -72,4 +72,4 @@ class ProjectEnvironment(MetaflowEnvironment):
     @classmethod
     def get_client_info(cls, *args):
         """Client information."""
-        return "Local project environment (metaflow_custom)"
+        return "Local project environment (metaflow_extensions)"

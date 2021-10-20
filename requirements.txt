@@ -1,4 +1,4 @@
-metaflow
+metaflow>=2.4.1
 flake8
 darglint
 pep8-naming
