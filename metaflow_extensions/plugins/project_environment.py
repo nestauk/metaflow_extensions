@@ -55,7 +55,7 @@ class ProjectEnvironment(MetaflowEnvironment):
             PROJECT_FILES,
         )
 
-        flow_path = Path(sys.argv[0])
+        flow_path = Path(sys.argv[0]).resolve()
         path = up_to_project_root(flow_path)
         if path:
             paths = filterfalse(is_path_hidden, walk(path, DEFAULT_PACKAGE_SUFFIXES))
