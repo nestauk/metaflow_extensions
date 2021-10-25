@@ -17,7 +17,7 @@ def has_project_file(path: Path) -> bool:
 
 def up_to_project_root(init_path: Path) -> Optional[Path]:
     """Walk up until project root found."""
-    path = init_path
+    path = init_path.resolve()
     while not has_project_file(path):
         path = path.parent
         if path == Path("/"):
