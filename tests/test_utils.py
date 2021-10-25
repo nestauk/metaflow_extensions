@@ -13,6 +13,7 @@ from metaflow_extensions.utils import (
     zip_stripped_root,
 )
 from tests.conftest import MYPROJECT_PATH
+from utils import ch_dir  # noqa: I
 
 
 NONEXISTENT_PATH = Path(f"/{uuid4()}/foo/bar/baz")
@@ -23,9 +24,17 @@ def test_has_project_file():
     assert not has_project_file(NONEXISTENT_PATH)
 
 
-def test_up_to_project_root():
+def test_up_to_project_root_absolute(tmp_path):
     assert up_to_project_root(MYPROJECT_PATH / "myproject") == MYPROJECT_PATH
     assert up_to_project_root(NONEXISTENT_PATH) is None
+
+
+def test_up_to_project_root_relative(tmp_path):
+    with ch_dir(tmp_path):
+        assert not up_to_project_root(Path("."))
+
+    myproject_path_relative = MYPROJECT_PATH.relative_to(Path.cwd())
+    assert up_to_project_root(myproject_path_relative / "myproject") == MYPROJECT_PATH
 
 
 def test_walk():
