@@ -7,6 +7,8 @@ import pytest
 from metaflow_extensions.utils import local_pip_install
 from utils import remove_pkg  # noqa: I
 
+MYPROJECT_PATH = Path(__file__).parent / "myproject"
+
 
 @contextmanager
 def temporary_project_maker(tmpdir_factory, project_name):
