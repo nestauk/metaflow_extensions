@@ -11,6 +11,19 @@ def test_runs_locally(temporary_installed_project):
     run_flow(flow_name(temporary_installed_project))
 
 
+def test_duff_project_runs_locally(temporary_duffproject):
+    """Flow should run but `myduffproject` won't have been installed since the project is duff.
+    The flow itself should test whether the error handling is working (fixes bug
+    https://github.com/nestauk/metaflow_extensions/issues/23)
+    """
+    with ch_dir(temporary_duffproject / "myduffproject"):
+        proc = run_flow(
+            temporary_duffproject / "myduffproject/myduffproject/flows/duff_flow.py"
+        )
+    assert b"project environment did not find a root file" in proc.stdout
+    
+    
+
 def test_runs_conda(temporary_project):
     """`flow.py` should run due to `LocalProject` default environment."""
     with ch_dir(temporary_project / "myproject"):

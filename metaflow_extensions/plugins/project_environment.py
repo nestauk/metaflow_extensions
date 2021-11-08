@@ -63,7 +63,7 @@ class ProjectEnvironment(MetaflowEnvironment):
         else:
             click.secho(
                 "project environment did not find a root file, "
-                f"(valid: {PROJECT_FILES})",
+                f"(valid: {PROJECT_FILES}, flow path: {flow_path})"
                 "no local project added.",
                 bg="red",
             )
