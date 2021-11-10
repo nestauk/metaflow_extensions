@@ -19,6 +19,8 @@ _suffix_list = ",".join(
         ".yaml",  # Config files
         ".md",  # E.g. when setup.py reads README.md
         ".txt",  # E.g. requirements.txt
+        ".sh",  # E.g. pre-install.sh
+        "VERSION",  # present in DAPS projects
     ]
 )
 DEFAULT_PACKAGE_SUFFIXES = from_conf("METAFLOW_DEFAULT_PACKAGE_SUFFIXES", _suffix_list)
@@ -52,3 +54,8 @@ def get_pinned_conda_libs(python_version: str) -> Dict[str, str]:
 # Defines root of a project for ProjectEnvironment
 _project_files = ["setup.py", "pyproject.toml"]
 PROJECT_FILES = from_conf("METAFLOW_PROJECT_FILES", _project_files)
+
+
+# Defines packages that should be pip installed prior to all execution
+_preinstall_pkgs = "daps-utils"
+PREINSTALL_PKGS = from_conf("METAFLOW_PREINSTALL_PKGS", _preinstall_pkgs).split(",")
