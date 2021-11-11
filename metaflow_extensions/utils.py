@@ -1,6 +1,7 @@
 """Utility functions."""
 import logging
 import os
+import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -46,45 +47,142 @@ def zip_stripped_root(
     return map(lambda item: (item, item.replace(str(root), "", 1)), paths)
 
 
-def running_in_local_env() -> bool:
-    """True if runtime environment is/will be the same as task-time environment."""
-    return not any(
-        arg.startswith("batch") or arg.startswith("conda") for arg in sys.argv
+REMOTE_RUNTIMES = ["batch", "kubernetes"]
+
+
+def is_task_local() -> bool:
+    """True if task is running on the same machine as the local orchestrator."""
+    return not any(f"--with {x}" in " ".join(sys.argv) for x in REMOTE_RUNTIMES)
+
+
+def is_mflow_conda_environment() -> bool:
+    """True if current process is a Metaflow Conda environment."""
+    from metaflow.metaflow_config import DEFAULT_ENVIRONMENT
+
+    joined_argv = " ".join(sys.argv)
+    return (
+        DEFAULT_ENVIRONMENT == "conda"
+        or "--environment conda" in joined_argv
+        or "--with conda" in joined_argv
     )
 
 
-def local_pip_install(project_path: Path) -> None:
+def is_task_running_in_local_env() -> bool:
+    """True if the task's environment is the same as the runtime environment."""
+    return is_task_local() and not is_mflow_conda_environment()
+
+
+def pip(
+    executable: str, *pip_cmds: str, **subprocess_kwargs
+) -> subprocess.CompletedProcess:
+    """Execute pip for the given python executable."""
+    process = subprocess.run(
+        [executable, "-m", "pip", *pip_cmds], check=True, **subprocess_kwargs
+    )
+    return process
+
+
+def pip_install(executable: str, path: str, *args) -> None:
+    """`pip install` local package at `path`."""
+    logging.info(f"pip installing @ {path} for {executable}.")
+    pip(executable, "install", path, "--quiet", *args, stdout=subprocess.DEVNULL)
+
+
+def local_pip_install(project_path: Path, executable: str = sys.executable) -> None:
     """`pip install` local package at `project_path`."""
-    logging.info(f"pip installing @ {project_path} for {sys.executable}.")
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            str(project_path),
-            "--quiet",
-            # Needed to avoid temporary copies of large dirs like `outputs/`
-            "--use-feature",
-            "in-tree-build",
-        ],
-        stdout=subprocess.DEVNULL,
-        check=True,
-    )
+    pip_install(executable, str(project_path))
 
 
-def upgrade_pip() -> None:
+def upgrade_pip(executable: str = sys.executable) -> None:
     """Upgrade pip."""
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "pip",
-            "--upgrade",
-            "--quiet",
-        ],
-        stdout=subprocess.DEVNULL,
-        check=True,
+    pip_install(executable, "pip", "--upgrade")
+
+
+def _parse_pkg_spec(pkg_details: str) -> Tuple[Optional[str], Optional[str]]:
+    """Determine package name and package spec from the output of pip freeze.
+
+    For example:
+       * foo @ git+https://path/to/foo.git -> foo, git+https://path/to/foo.git
+       * foo==1.2.3                        -> foo, foo==1.2.3
+
+    Arguments:
+        pkg_details: A single line of output from pip freeze.
+
+    Returns:
+        Tuple containing package name and package spec.
+    """
+    pkg_name, pkg_spec = None, None
+    # First format: foo @ git+https://path/to/foo.git
+    try:
+        pkg_name, pkg_spec = pkg_details.split(" @ ")
+    except ValueError:
+        pass
+    # Second format: foo==1.2.3
+    try:
+        pkg_name, _ = pkg_details.split("==")
+        pkg_spec = pkg_details
+    except ValueError:
+        # Other format is '-e git+ssh' which are local
+        # packages and so can't be supported anyway
+        pass
+    return pkg_name, pkg_spec
+
+
+def parse_subprocess_stdout(
+    subprocess_output: subprocess.CompletedProcess,
+) -> Iterator[str]:
+    """Split and decode subprocess output."""
+    yield from map(bytes.decode, subprocess_output.stdout.splitlines())
+
+
+def get_pkg_spec(pkg_name: str) -> Optional[str]:
+    """Retrieves the package spec for the local package name, if it exists."""
+    subprocess_output = pip(sys.executable, "freeze", capture_output=True)
+    pkgs_details = parse_subprocess_stdout(subprocess_output)
+    for _pkg_name, pkg_spec in map(_parse_pkg_spec, pkgs_details):
+        if _pkg_name == pkg_name:
+            return pkg_spec
+    return None
+
+
+def get_conda_envs_directory(subprocess_output: subprocess.CompletedProcess) -> str:
+    """Parse the conda environment directory from conda info output."""
+    for line in parse_subprocess_stdout(subprocess_output):
+        try:
+            _, envs_directory = line.split("envs directories : ")
+        except ValueError:
+            continue
+        else:
+            return envs_directory
+    raise ValueError("Could not parse conda environment directory.")
+
+
+def get_conda_python_executable(env_id: str) -> str:
+    """Resolve the pip for this conda."""
+    subprocess_output = subprocess.run(
+        ["conda", "info"], check=True, capture_output=True
     )
+    envs_directory = get_conda_envs_directory(subprocess_output)
+    python_exec = str(Path(envs_directory) / env_id / "bin" / "python")
+    return python_exec
+
+
+def platform_arch_mismatch(env_id: str) -> bool:
+    """Determine whether the conda env's arch matches with the local arch."""
+    _, _, arch, _ = env_id.split("_")
+    if platform.system() == "Linux":
+        return not arch.startswith("linux")
+    elif platform.system() == "Darwin":
+        return not arch.startswith("osx")
+    else:
+        raise ValueError(f"Platform '{platform.system()}' is not supported")
+
+
+def install_flow_project(executable: str = sys.executable) -> Optional[Path]:
+    """Install the project corresponding to the currently running flow."""
+    flow_path = Path(sys.argv[0])
+    project_root = up_to_project_root(flow_path)
+    if project_root:
+        upgrade_pip(executable)  # Need newer features for install step
+        local_pip_install(project_root, executable)
+    return project_root

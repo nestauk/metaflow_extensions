@@ -11,16 +11,11 @@ Implementation notes:
   every step, and as ProjectEnvironment is intended to replace the
   default environment, we may not always be in a project context.
 """
-import sys
-from pathlib import Path
-
 from metaflow.decorators import StepDecorator
 
 from metaflow_extensions.utils import (
-    local_pip_install,
-    running_in_local_env,
-    up_to_project_root,
-    upgrade_pip,
+    install_flow_project,
+    is_task_running_in_local_env,
 )
 
 
@@ -50,15 +45,9 @@ class InstallProjectStepDecorator(StepDecorator):
 
     def task_pre_step(self, *args):
         """If not running locally, install project package if one exists."""
-        if running_in_local_env():
+        if is_task_running_in_local_env():
             return
-
-        flow_path = Path(sys.argv[0])
-        project_root = up_to_project_root(flow_path)
-        if project_root:
-            upgrade_pip()  # Need newer features for install step
-            local_pip_install(project_root)
-
+        project_root = install_flow_project()
         if not project_root and self.attributes["fail_loudly"]:
             raise FileNotFoundError(
                 f"Could not find pip-installable file @ {project_root}"

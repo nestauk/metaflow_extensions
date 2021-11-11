@@ -48,6 +48,12 @@ jobs:
           $CONDA/bin/python -m pip install .
           conda config --add channels conda-forge
 
+      - name: Install empty conda env for test_utils.test_get_conda_python_executable
+        run: conda create -n foo python=3.8 -y
+
+      - name: Install daps-utils in the "main" user env for test_utils.test_get_pkg_spec
+        run: $CONDA/bin/python -m pip install git+https://github.com/nestauk/daps_utils@dev
+
       - name: Git config
         run: |
           git config --global user.email test@example.com
