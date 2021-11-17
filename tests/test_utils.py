@@ -23,7 +23,7 @@ from metaflow_extensions.utils import (
 )
 from tests.conftest import MYPROJECT_PATH
 
-from utils import ch_dir, env  # noqa: I
+from utils import ch_dir  # noqa: I
 
 NONEXISTENT_PATH = Path(f"/{uuid4()}/foo/bar/baz")
 

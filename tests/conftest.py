@@ -1,5 +1,5 @@
-from contextlib import contextmanager
 import shutil
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest

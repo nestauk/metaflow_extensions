@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from metaflow_custom.plugins.cli import _parse_options, _serialize
+from metaflow_extensions.plugins.cli import _parse_options, _serialize
 from utils import ch_dir, run_config_flow  # noqa: I
 
 flow_name = "{}/myproject/myproject/flows/flow.py".format
@@ -11,7 +11,7 @@ config_name = "{}/myproject/myproject/flow_config.yaml".format
 
 
 def test_runs_locally(temporary_installed_project):
-    """`flow.py` should run without `metaflow_custom` if `myproject` pip installed."""
+    """`flow.py` runs without `metaflow_extensions` if `myproject` pip installed."""
     with ch_dir(temporary_installed_project / "myproject"):
         run_config_flow(
             flow_name(temporary_installed_project),
