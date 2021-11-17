@@ -82,8 +82,8 @@ You can do this:
 dev:
   preflow_kwargs:
     - datastore: local # faster locally because no overhead of talking to S3
-    - metadata: local
-    - monitor: debugMonitor
+      metadata: local
+      monitor: debugMonitor
     - ["no-pylint"]
   flow_kwargs:
     - my-json-param: { key: 1 }
@@ -94,8 +94,8 @@ prod:
     - ["no-pylint"]
   flow_kwargs:
     - my-json-param: { key: 2 }
-    - with: "batch:cpu=10"
-    - namespace: production
+      with: "batch:cpu=10"
+      namespace: production
     - ["no-test-mode"]
 ```
 
