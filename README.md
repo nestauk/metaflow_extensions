@@ -99,6 +99,27 @@ prod:
     - ["no-test-mode"]
 ```
 
+You can even use YAML anchors (`&anchor_name`) and merge keys (`<<: *anchor_name`) to reduce repetition across profiles,
+
+```yaml
+dev:
+  preflow_kwargs:
+    - &dev-pre # Create YAML anchor for this array
+      datastore: local # faster locally because no overhead of talking to S3
+      metadata: local
+      monitor: debugMonitor
+    - []
+  flow_kwargs: &dev-flow
+    - my-json-param: { key: 1 }
+    - []
+prod:
+  preflow_kwargs:
+    - <<: *dev-pre # Merge anchor (re-use datastore, metadata, monitor set in dev-pre)
+      datastore: s3 # Over-ride datastore set in dev-pre
+    - []
+  flow_kwargs: *dev-flow # Re-use flow_kwargs from dev
+```
+
 ### Different default Settings
 
 See `metaflow_extensions.config.metaflow_config.py` for details.
