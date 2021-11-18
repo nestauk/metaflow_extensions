@@ -16,6 +16,7 @@ from metaflow_extensions.utils import (
     is_task_local,
     is_task_running_in_local_env,
     parse_subprocess_stdout,
+    pip_install,
     platform_arch_mismatch,
     up_to_project_root,
     walk,
@@ -54,9 +55,11 @@ def test_walk():
         "myproject/flows/flow.py",
         "myproject/flows/batch_flow.py",
         "myproject/flows/batch_flow_with_conda.py",
+        "myproject/flows/pip_flow_conda.py",
+        "myproject/flows/requirements.txt",
     ]
     expected_files_abs = set(str(MYPROJECT_PATH / file) for file in expected_files_rel)
-    actual_files = set(walk(MYPROJECT_PATH, [".py"]))
+    actual_files = set(walk(MYPROJECT_PATH, [".py", ".txt"]))
     print(actual_files)
     assert len(actual_files ^ expected_files_abs) == 0
 
@@ -240,3 +243,36 @@ def test_get_conda_envs_directory():
         b"               platform : osx-64"
     )
     assert get_conda_envs_directory(subprocess_output) == "/foo/bar/envs"
+
+
+
+@pytest.mark.parametrize(
+    "paths,args,out_paths,out_args",
+    [
+        ("tqdm", (), ("tqdm",), ()),
+        ("tqdm==1.2.3", (), ("tqdm==1.2.3",), ()),
+        ("tqdm ==1.2.3", (), ("'tqdm ==1.2.3'",), ()),
+        (("tqdm ==1.2.3",), (), ("'tqdm ==1.2.3'",), ()),
+        (
+            ("tqdm ==1.2.3", "uren == 4.5.6"),
+            (),
+            ("'tqdm ==1.2.3'", "'uren == 4.5.6'"),
+            (),
+        ),
+        (
+            ("tqdm ==1.2.3", "uren == 4.5.6"),
+            ("--log", "path with space"),
+            ("'tqdm ==1.2.3'", "'uren == 4.5.6'"),
+            ("--log", "'path with space'"),
+        ),
+    ],
+)
+@mock.patch(  # Don't execute subprocess just return input args
+    "metaflow_extensions.utils.pip", lambda *pip_args, **subproc_kwargs: pip_args
+)
+def test_pip_install(paths, args, out_paths, out_args):
+    assert pip_install("python", paths, *args)[2:] == (
+        *out_paths,
+        "--quiet",
+        *out_args,
+    )
