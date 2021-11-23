@@ -43,11 +43,7 @@ class TestAwsRuns:
         kwargs = {"environment": "conda"} if flow.endswith("conda") else {}
         with ch_dir(temporary_project / "myproject"):
             run_flow(
-                flow_name(temporary_project, flow),
-                batch=True,
-                metadata="service",
-                datastore="s3",
-                **kwargs
+                flow_name(temporary_project, flow), batch=True, datastore="s3", **kwargs
             )
 
     @pytest.mark.parametrize("flow", ["flow", "batch_flow", "batch_flow_with_conda"])
