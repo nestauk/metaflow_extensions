@@ -2,10 +2,13 @@
 import logging
 import os
 import platform
+import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Tuple
+from typing import Iterable, Iterator, List, Optional, Tuple, Union
+
+REMOTE_RUNTIMES = ["batch", "kubernetes"]
 
 
 def has_project_file(path: Path) -> bool:
@@ -37,7 +40,8 @@ def walk(root: os.PathLike, addl_suffixes: List[str]) -> Iterator[str]:
 
 def is_path_hidden(path: os.PathLike) -> bool:
     """True if `path` contains a hidden component."""
-    return "/." in path or Path(path).name.startswith(".")
+    path = Path(path)
+    return any(part.startswith(".") for part in path.parts)
 
 
 def zip_stripped_root(
@@ -82,10 +86,23 @@ def pip(
     return process
 
 
-def pip_install(executable: str, path: str, *args) -> None:
+def pip_install(
+    executable: str, paths: Union[str, Tuple[str, ...]], *args
+) -> subprocess.CompletedProcess:
     """`pip install` local package at `path`."""
-    logging.info(f"pip installing @ {path} for {executable}.")
-    pip(executable, "install", path, "--quiet", *args, stdout=subprocess.DEVNULL)
+    logging.info(f"pip installing {paths} for {executable}.")
+
+    if isinstance(paths, str):
+        paths = (paths,)
+
+    return pip(
+        executable,
+        "install",
+        *map(shlex.quote, paths),
+        "--quiet",
+        *map(shlex.quote, args),
+        stdout=subprocess.DEVNULL,
+    )
 
 
 def local_pip_install(project_path: Path, executable: str = sys.executable) -> None:
