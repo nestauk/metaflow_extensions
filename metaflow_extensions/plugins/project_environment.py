@@ -147,10 +147,6 @@ class ProjectEnvironment(MetaflowEnvironment):
 
     TYPE = "project"
 
-    def decospecs(self):
-        """Add `install_project` decorator to every step."""
-        return ("install_project",)
-
     def add_to_package(self):
         """Add project (if project root exists to define it) to the job package."""
         # Import encapsulated to avoid import errors
