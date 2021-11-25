@@ -22,7 +22,6 @@ from metaflow.plugins.conda.conda_step_decorator import CondaStepDecorator
 
 from metaflow_extensions.utils import (
     is_mflow_conda_environment,
-    is_task_local,
     pip,
     pip_install,
 )
@@ -105,7 +104,13 @@ class PipStepDecorator(StepDecorator):
 
 def ensure_conda_integrity(step_name: str, flow: FlowSpec, graph: FlowGraph) -> None:
     """If using conda and local runtime, ensure subsequent steps get clean env."""
-    if is_task_local() and is_mflow_conda_environment():
+
+    def _is_task_local():
+        from metaflow import __path__ as metaflow_path
+
+        return not (metaflow_path == "/metaflow/metaflow")
+
+    if _is_task_local() and is_mflow_conda_environment():
         step_decorators = graph.nodes[step_name].decorators
         # Triggers re-creation of Conda env after extra installation actions
         # has possibly 'polluted' it.
