@@ -12,7 +12,7 @@ from typing import Iterable, Iterator, List, Optional, Tuple, Union
 def has_project_file(path: Path) -> bool:
     """True if `path` contains metaflow project file."""
     # Import encapsulated to avoid import errors
-    from metaflow_extensions.config.metaflow_config import PROJECT_FILES
+    from metaflow_extensions.nesta.config.metaflow_config import PROJECT_FILES
 
     return any((path / file).exists() for file in PROJECT_FILES)
 
@@ -49,13 +49,11 @@ def zip_stripped_root(
     return map(lambda item: (item, str(Path(item).relative_to(root))), paths)
 
 
-def is_mflow_conda_environment() -> bool:
+def is_mflow_conda_environment(argv, default_env) -> bool:
     """True if current process is a Metaflow Conda environment."""
-    from metaflow.metaflow_config import DEFAULT_ENVIRONMENT
-
-    joined_argv = " ".join(sys.argv)
+    joined_argv = " ".join(argv)
     return (
-        DEFAULT_ENVIRONMENT == "conda"
+        default_env == "conda"
         or "--environment conda" in joined_argv
         or "--with conda" in joined_argv
     )

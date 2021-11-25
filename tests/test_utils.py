@@ -4,7 +4,7 @@ from unittest import mock
 
 import pytest
 
-from metaflow_extensions.utils import is_mflow_conda_environment, pip_install
+from metaflow_extensions.nesta.utils import is_mflow_conda_environment, pip_install
 
 
 @pytest.mark.parametrize(
@@ -24,12 +24,11 @@ from metaflow_extensions.utils import is_mflow_conda_environment, pip_install
 )
 def test_is_mflow_conda_environment(argv, default_env, is_conda):
     tmp = sys.argv.copy()
-    with mock.patch("metaflow.metaflow_config.DEFAULT_ENVIRONMENT", default_env):
-        try:
-            sys.argv = argv
-            assert is_mflow_conda_environment() is is_conda
-        finally:
-            sys.argv = tmp
+    try:
+        sys.argv = argv
+        assert is_mflow_conda_environment(sys.argv, default_env) is is_conda
+    finally:
+        sys.argv = tmp
 
 
 @pytest.mark.parametrize(
@@ -54,7 +53,7 @@ def test_is_mflow_conda_environment(argv, default_env, is_conda):
     ],
 )
 @mock.patch(  # Don't execute subprocess just return input args
-    "metaflow_extensions.utils.pip", lambda *pip_args, **subproc_kwargs: pip_args
+    "metaflow_extensions.nesta.utils.pip", lambda *pip_args, **subproc_kwargs: pip_args
 )
 def test_pip_install(paths, args, out_paths, out_args):
     assert pip_install("python", paths, *args)[2:] == (

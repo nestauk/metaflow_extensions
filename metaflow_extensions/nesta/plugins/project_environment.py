@@ -11,16 +11,8 @@ import sys
 from itertools import filterfalse
 from pathlib import Path
 
-import click
 from metaflow.metaflow_environment import MetaflowEnvironment
 from metaflow.plugins.conda.conda_environment import CondaEnvironment
-
-from metaflow_extensions.utils import (
-    is_path_hidden,
-    up_to_project_root,
-    walk,
-    zip_stripped_root,
-)
 
 
 def will_task_be_batch(step_name: str, flow: object) -> bool:
@@ -83,8 +75,15 @@ class ProjectEnvironment(MetaflowEnvironment):
     def add_to_package(self):
         """Add project (if project root exists to define it) to the job package."""
         # Import encapsulated to avoid import errors
+        import click
         from metaflow.metaflow_config import DEFAULT_PACKAGE_SUFFIXES
-        from metaflow_extensions.config.metaflow_config import PROJECT_FILES
+        from metaflow_extensions.nesta.config.metaflow_config import PROJECT_FILES
+        from metaflow_extensions.nesta.utils import (
+            is_path_hidden,
+            up_to_project_root,
+            walk,
+            zip_stripped_root,
+        )
 
         flow_path = Path(sys.argv[0]).resolve()
         path = up_to_project_root(flow_path)
