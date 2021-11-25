@@ -54,7 +54,7 @@ Having `metaflow_extensions` installed activates the "project" environment (`met
 This environment:
 
 1. Adds your project to the job package.
-2. Automatically adds a decorator that installs your project to each step of your flow.
+2. Automatically installs your project to each step of your flow.
 
 :bulb: **Tip:** To check what files are being added to the metaflow job package you can run `$python path/to/flow.py package list`
 
