@@ -48,7 +48,9 @@ def zip_stripped_root(
     root: os.PathLike, paths: Iterable[str]
 ) -> Iterator[Tuple[str, str]]:
     """Return tuples of path and path with `root` stripped for paths in `path`."""
-    return map(lambda item: (item, item.replace(str(root), "", 1)), paths)
+    return map(
+        lambda item: (item, str(Path("pkg_self") / Path(item).relative_to(root))), paths
+    )
 
 
 REMOTE_RUNTIMES = ["batch", "kubernetes"]

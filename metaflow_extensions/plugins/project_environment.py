@@ -205,4 +205,7 @@ class ProjectEnvironment(MetaflowEnvironment):
                 f"{pip_install} --upgrade pip",
                 f"{pip_install} {pkg_spec} 1> /dev/null",
             ]
+
+        # Install flow project
+        cmds.append(f"{pip_install} pkg_self/.")
         return cmds

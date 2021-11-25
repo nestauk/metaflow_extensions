@@ -79,15 +79,14 @@ def test_is_path_hidden(path, is_hidden):
 
 
 @pytest.mark.parametrize(
-    "root,strip_paths",
+    "root,paths,strip_paths",
     [
-        ("/prefix", ["/ab", "a"]),
-        ("", ["/ab", "a"]),
-        ("/", ["/ab", "a"]),
+        ("/prefix", ["/prefix/ab", "/prefix/a"], ["pkg_self/ab", "pkg_self/a"]),
+        ("", ["ab", "a"], ["pkg_self/ab", "pkg_self/a"]),
+        ("/", ["/ab", "/a"], ["pkg_self/ab", "pkg_self/a"]),
     ],
 )
-def test_zip_stripped_root(root, strip_paths):
-    paths = list(map(lambda p: root + p, strip_paths))
+def test_zip_stripped_root(root, paths, strip_paths):
     result = list(zip_stripped_root(root, paths))
     assert result == list(zip(paths, strip_paths))
 
@@ -243,7 +242,6 @@ def test_get_conda_envs_directory():
         b"               platform : osx-64"
     )
     assert get_conda_envs_directory(subprocess_output) == "/foo/bar/envs"
-
 
 
 @pytest.mark.parametrize(
