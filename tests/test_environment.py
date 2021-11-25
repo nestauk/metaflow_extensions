@@ -16,7 +16,8 @@ def test_runs_locally(temporary_installed_project):
 
 
 def test_duff_project_runs_locally(temporary_duffproject):
-    """Flow should run but `myduffproject` won't have been installed since the project is duff.
+    """Flow should run but `myduffproject` won't have been installed.
+
     The flow itself should test whether the error handling is working (fixes bug
     https://github.com/nestauk/metaflow_extensions/issues/23)
     """
@@ -37,7 +38,7 @@ def test_runs_conda(temporary_project, flow):
 
 @pytest.mark.aws
 class TestAwsRuns:
-    @pytest.mark.parametrize("flow", ["flow", "batch_flow", "batch_flow_with_conda"])
+    @pytest.mark.parametrize("flow", ["flow", "pip_flow_conda"])
     def test_runs_all_batch(self, temporary_project, flow):
         """Flows run entirely on batch."""
         kwargs = {"environment": "conda"} if flow.endswith("conda") else {}
@@ -46,8 +47,28 @@ class TestAwsRuns:
                 flow_name(temporary_project, flow), batch=True, datastore="s3", **kwargs
             )
 
+    @pytest.mark.ci_only
     @pytest.mark.parametrize("flow", ["flow", "batch_flow", "batch_flow_with_conda"])
+    def test_runs_all_batch_preinstall(self, temporary_project, flow):
+        """Flows run entirely on batch."""
+        kwargs = {"environment": "conda"} if flow.endswith("conda") else {}
+        with ch_dir(temporary_project / "myproject"):
+            run_flow(
+                flow_name(temporary_project, flow), batch=True, datastore="s3", **kwargs
+            )
+
+    @pytest.mark.parametrize("flow", ["flow", "pip_flow_conda"])
     def test_runs_some_batch(self, temporary_installed_project, flow):
+        """Flows run mixture of local and on batch."""
+        kwargs = {"environment": "conda"} if flow.endswith("conda") else {}
+        with ch_dir(temporary_installed_project / "myproject"):
+            run_flow(
+                flow_name(temporary_installed_project, "flow"), datastore="s3", **kwargs
+            )
+
+    @pytest.mark.ci_only
+    @pytest.mark.parametrize("flow", ["batch_flow", "batch_flow_with_conda"])
+    def test_runs_some_batch_preinstall(self, temporary_installed_project, flow):
         """Flows run mixture of local and on batch."""
         kwargs = {"environment": "conda"} if flow.endswith("conda") else {}
         with ch_dir(temporary_installed_project / "myproject"):
