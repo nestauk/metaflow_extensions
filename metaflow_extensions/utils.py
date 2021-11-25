@@ -8,8 +8,6 @@ import sys
 from pathlib import Path
 from typing import Iterable, Iterator, List, Optional, Tuple, Union
 
-REMOTE_RUNTIMES = ["batch", "kubernetes"]
-
 
 def has_project_file(path: Path) -> bool:
     """True if `path` contains metaflow project file."""
@@ -53,14 +51,6 @@ def zip_stripped_root(
     )
 
 
-REMOTE_RUNTIMES = ["batch", "kubernetes"]
-
-
-def is_task_local() -> bool:
-    """True if task is running on the same machine as the local orchestrator."""
-    return not any(f"--with {x}" in " ".join(sys.argv) for x in REMOTE_RUNTIMES)
-
-
 def is_mflow_conda_environment() -> bool:
     """True if current process is a Metaflow Conda environment."""
     from metaflow.metaflow_config import DEFAULT_ENVIRONMENT
@@ -71,11 +61,6 @@ def is_mflow_conda_environment() -> bool:
         or "--environment conda" in joined_argv
         or "--with conda" in joined_argv
     )
-
-
-def is_task_running_in_local_env() -> bool:
-    """True if the task's environment is the same as the runtime environment."""
-    return is_task_local() and not is_mflow_conda_environment()
 
 
 def pip(

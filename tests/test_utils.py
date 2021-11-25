@@ -13,8 +13,6 @@ from metaflow_extensions.utils import (
     has_project_file,
     is_mflow_conda_environment,
     is_path_hidden,
-    is_task_local,
-    is_task_running_in_local_env,
     parse_subprocess_stdout,
     pip_install,
     platform_arch_mismatch,
@@ -92,29 +90,6 @@ def test_zip_stripped_root(root, paths, strip_paths):
 
 
 @pytest.mark.parametrize(
-    "argv,is_local",
-    [
-        # True
-        (["file", "batch"], True),
-        (["file", "batch:stuff"], True),
-        (["file", "kubernetes"], True),
-        (["file", "kubernetes:stuff"], True),
-        (["file", "--environment", "conda"], True),
-        # False
-        (["file", "--with", "batch"], False),
-        (["file", "--with", "kubernetes"], False),
-    ],
-)
-def test_is_task_local(argv, is_local):
-    tmp = sys.argv.copy()
-    try:
-        sys.argv = argv
-        assert is_task_local() is is_local
-    finally:
-        sys.argv = tmp
-
-
-@pytest.mark.parametrize(
     "argv,default_env,is_conda",
     [
         # True
@@ -137,32 +112,6 @@ def test_is_mflow_conda_environment(argv, default_env, is_conda):
             assert is_mflow_conda_environment() is is_conda
         finally:
             sys.argv = tmp
-
-
-@pytest.mark.parametrize(
-    "argv,is_local",
-    [
-        # True
-        (["file", "conda"], True),
-        (["file", "--flag", "conda"], True),
-        (["file", "--environment", "prefix:conda"], True),
-        (["file", "batch"], True),
-        (["file", "--flag", "batch"], True),
-        (["file", "--with", "prefix:batch"], True),
-        # False
-        (["file", "--environment", "conda"], False),
-        (["file", "--environment", "conda:stuff"], False),
-        (["file", "--with", "batch"], False),
-        (["file", "--with", "batch:stuff"], False),
-    ],
-)
-def test_is_task_running_in_local_env(argv, is_local):
-    tmp = sys.argv.copy()
-    try:
-        sys.argv = argv
-        assert is_task_running_in_local_env() is is_local
-    finally:
-        sys.argv = tmp
 
 
 @pytest.mark.ci_only
