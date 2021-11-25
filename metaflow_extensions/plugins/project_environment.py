@@ -33,7 +33,7 @@ from metaflow_extensions.utils import (
 
 def is_task_local() -> bool:
     """True if task is running on the same machine as the local orchestrator."""
-    return bool(os.environ.get("IN_REMOTE_RUNTIME", False))
+    return bool(os.environ.get("IN_REMOTE_RUNTIME", True))
 
 
 def bootstrap_wrapper(conda_env_bootstrap_commands):
