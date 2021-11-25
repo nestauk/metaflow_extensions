@@ -7,6 +7,7 @@ Implementation notes:
   inferred by inspecting the arguments to the current process, the first
   argument being the flow path.
 """
+import os
 import sys
 from itertools import filterfalse
 from pathlib import Path
@@ -23,12 +24,16 @@ from metaflow_extensions.utils import (
     install_flow_project,
     is_path_hidden,
     pip_install,
-    platform_arch_mismatch,
     up_to_project_root,
     upgrade_pip,
     walk,
     zip_stripped_root,
 )
+
+
+def is_task_local() -> bool:
+    """True if task is running on the same machine as the local orchestrator."""
+    return bool(os.environ.get("IN_REMOTE_RUNTIME", False))
 
 
 def bootstrap_wrapper(conda_env_bootstrap_commands):
@@ -94,13 +99,7 @@ def prepare_step_wrapper(conda_step_prepare_step_environment: Callable) -> Calla
         # tl,dr; if this is a batch step, skip it, as package installation
         #        for batch steps is done by bootstrap_wrapper, whereas
         #        prepare_step_wrapper deals with local steps.
-        #
-        # Batch steps have a conda environment with an arch (Linux) that doesn't
-        # match the local arch (e.g. MacOS). In the "edge case" where the local
-        # arch and batch arch match (i.e. are both Linux) then no harm
-        # will be done by doubly installing the same packages, both here and
-        # with project_environment.bootstrap_wrapper
-        if platform_arch_mismatch(env_id):
+        if not is_task_local():
             return env_id
 
         python_exec = get_conda_python_executable(env_id)
@@ -208,4 +207,8 @@ class ProjectEnvironment(MetaflowEnvironment):
 
         # Install flow project
         cmds.append(f"{pip_install} pkg_self/.")
+
+        # Create flag for being in remote runtime
+        cmds.append("export IN_REMOTE_RUNTIME=1")
+
         return cmds
