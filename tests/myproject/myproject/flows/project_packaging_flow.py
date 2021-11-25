@@ -2,8 +2,10 @@ from metaflow import FlowSpec, pip, step
 
 
 class MetaflowExtensionsProjectPackageFlow(FlowSpec):
-    """Dummy flow for testing `ProjectEnvironment.add_to_package` and
+    """Dummy flow for testing `PreinstallEnvironment.add_to_package` and
     `PipStepDecorator` to achieve local packaging.
+
+    Note: the symlink in this folder that was run with `ln -s ../../. .`
     """
 
     @pip(path="requirements-project_packaging_flow.txt")

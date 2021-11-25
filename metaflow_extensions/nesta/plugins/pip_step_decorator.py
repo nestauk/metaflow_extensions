@@ -39,6 +39,9 @@ class PipStepDecorator(StepDecorator):
 
     Only one of `libraries` or `path` may be passed.
 
+    Underlying `pip` commands are run from the flow directory to avoid
+    inconsistent behaviour based on where a flow is executed from.
+
     Parameters:
         path (Path): Relative path (compared to flow file) to `requirements.txt`
           formatted file.
@@ -72,6 +75,8 @@ class PipStepDecorator(StepDecorator):
         inputs,
     ):
         """Install packages with pip."""
+        from metaflow_extensions.nesta.utils import ch_dir
+
         flow_dir = Path(sys.argv[0]).parent
         path = (flow_dir / self.attributes["path"]) if self.attributes["path"] else None
         libraries = self.attributes["libraries"]
@@ -85,7 +90,8 @@ class PipStepDecorator(StepDecorator):
             )
 
         if path_mode:
-            pip_install_reqs(path)
+            with ch_dir(flow_dir):
+                pip_install_reqs(path)
 
         if library_mode:
             pip_install_libraries(libraries)
