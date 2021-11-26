@@ -56,8 +56,12 @@ def bootstrap_wrapper(conda_env_bootstrap_commands):
     """
 
     def wrapped_bootstrap_commands(self, step_name):
+        from metaflow_extensions.config.metaflow_config import DEFAULT_ENVIRONMENT
+
         cmds = conda_env_bootstrap_commands(self, step_name)
-        cmds += ProjectEnvironment.bootstrap_commands(self, step_name)
+
+        if DEFAULT_ENVIRONMENT == "project":
+            cmds += ProjectEnvironment.bootstrap_commands(self, step_name)
         return cmds
 
     return wrapped_bootstrap_commands
