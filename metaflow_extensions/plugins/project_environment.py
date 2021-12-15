@@ -212,6 +212,5 @@ class ProjectEnvironment(MetaflowEnvironment):
             ]
 
         # Install flow project
-        cmds.append(f"{pip_install} pkg_self/.")
-
+        cmds.append(f"{pip_install} -e pkg_self/.")
         return cmds
