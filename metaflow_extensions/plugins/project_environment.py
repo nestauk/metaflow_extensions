@@ -205,12 +205,12 @@ class ProjectEnvironment(MetaflowEnvironment):
         # Pre-install specified packages if the user have them
         # installed in their local python env
         pip_install = f"{self.executable(step_name)} -m pip install --quiet"
+        cmds += [f"{pip_install} --upgrade pip"]
         for pkg_spec in filter(None, map(get_pkg_spec, PREINSTALL_PKGS)):
             cmds += [
-                f"{pip_install} --upgrade pip",
                 f"{pip_install} {pkg_spec} 1> /dev/null",
             ]
 
         # Install flow project
-        cmds.append(f"{pip_install} -e pkg_self/.")
+        cmds.append(f"{pip_install} -e pkg_self/. || export PYTHONPATH=$PWD/pkg_self")
         return cmds
