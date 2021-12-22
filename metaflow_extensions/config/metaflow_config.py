@@ -21,6 +21,7 @@ _suffix_list = ",".join(
         ".txt",  # E.g. requirements.txt
         ".sh",  # E.g. pre-install.sh
         "VERSION",  # present in DAPS projects
+        ".config",  # E.g. mysqldb.config
     ]
 )
 DEFAULT_PACKAGE_SUFFIXES = from_conf("METAFLOW_DEFAULT_PACKAGE_SUFFIXES", _suffix_list)
