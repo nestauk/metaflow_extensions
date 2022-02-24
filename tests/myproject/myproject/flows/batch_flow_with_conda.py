@@ -4,7 +4,10 @@ import daps_utils  # This works on batch because of preinstall
 from metaflow import batch, conda, FlowSpec, step
 
 
-class MetaflowExtensionsPreinstallCondaFlow(FlowSpec, daps_utils.DapsFlowMixin):
+print("I can access this mixin!...", daps_utils.DapsFlowMixin)
+
+
+class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
     """Dummy batch flow for showing that bootstrap_command is working."""
 
     @step
