@@ -18,10 +18,10 @@ def temporary_project_maker(tmpdir_factory, project_name):
     project_path = Path(__file__).parent / project_name
     temp = tmpdir_factory.mktemp("data-project")
     shutil.copytree(project_path, temp / project_name)
-    pip_install(sys.executable, "git+https://github.com/nestauk/daps_utils@dev")
+    pip_install(sys.executable, "nuts-finder")
     sh.git.init(temp)  # to support "daps-utils"-like projects
     yield temp
-    remove_pkg("daps-utils")
+    remove_pkg("nuts-finder")
     shutil.rmtree(temp)
 
 

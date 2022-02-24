@@ -1,10 +1,10 @@
 from pathlib import Path
 
-import daps_utils  # This works on batch because of preinstall
+import nuts_finder
 from metaflow import batch, conda, FlowSpec, step
+from nuts_finder import NutsFinder  # This works on batch because of preinstall
 
-
-print("I can access this mixin!...", daps_utils.DapsFlowMixin)
+nf = NutsFinder()
 
 
 class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
@@ -19,9 +19,9 @@ class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
     @batch()
     @step
     def b(self):
-        """Show that daps_utils is installed via. preinstall."""
+        """Show that nuts_finder is installed via. preinstall."""
         self.something = self.input
-        print("non-conda lib daps_utils installed: ", daps_utils.__version__)
+        print("non-conda lib nuts_finder installed: ", nuts_finder.__version__)
 
         # Show preinstall has run (it adds a file called 'special-batch-file')
         assert Path("special-batch-file").exists()
@@ -42,15 +42,15 @@ class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
     @batch()
     @step
     def e(self):
-        """Show that daps_utils is also installed via. preinstall in Conda."""
+        """Show that nuts_finder is also installed via. preinstall in Conda."""
         # First show that we're in the env
         import sh
 
         self.something = self.input
         print("conda specific lib sh installed: ", sh.__version__)
 
-        # Next show that daps_utils is not installed
-        print("non-conda lib daps_utils installed: ", daps_utils.__version__)
+        # Next show that nuts_finder is not installed
+        print("non-conda lib nuts_finder installed: ", nuts_finder.__version__)
 
         assert Path("special-batch-file").exists()
         self.next(self.f)
