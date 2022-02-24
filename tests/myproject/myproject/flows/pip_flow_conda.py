@@ -4,7 +4,7 @@ from metaflow import conda, conda_base, FlowSpec, pip, step
 
 
 @conda_base(libraries={"tqdm": "4.62.0"})
-class MetaflowExtensionsTestFlow(FlowSpec):
+class MetaflowExtensionsPipCondaFlow(FlowSpec):
     """Flow for testing metaflow_extensions."""
 
     @step
@@ -76,4 +76,4 @@ class MetaflowExtensionsTestFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    MetaflowExtensionsTestFlow()
+    MetaflowExtensionsPipCondaFlow()

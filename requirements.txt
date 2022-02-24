@@ -1,5 +1,6 @@
 metaflow<2.5
 pip>=21.3.1
+sh
 flake8
 darglint
 pep8-naming
