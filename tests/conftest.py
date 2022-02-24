@@ -19,7 +19,6 @@ def temporary_project_maker(tmpdir_factory, project_name):
     temp = tmpdir_factory.mktemp("data-project")
     shutil.copytree(project_path, temp / project_name)
     pip_install(sys.executable, "git+https://github.com/nestauk/daps_utils@dev")
-    # sh.git.init(temp)  # to support "daps-utils"-like projects
     yield temp
     remove_pkg("daps-utils")
     shutil.rmtree(temp)
@@ -34,7 +33,7 @@ def temporary_project(tmpdir_factory):
 
 @pytest.fixture(scope="session")
 def temporary_duffproject(tmpdir_factory):
-    """Create temporary project `myproject`."""
+    """Create temporary project `myduffproject`."""
     with temporary_project_maker(tmpdir_factory, "myduffproject") as temp:
         yield temp
 
@@ -42,6 +41,5 @@ def temporary_duffproject(tmpdir_factory):
 @pytest.fixture
 def temporary_installed_project(temporary_project):
     """Install `{temporary_project}/myproject/setup.py`."""
-    # sh.git.init(temporary_project)  # to support "daps-utils"-like projects
     yield temporary_project
     remove_pkg("myproject")

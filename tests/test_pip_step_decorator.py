@@ -1,15 +1,15 @@
-"""Test pip step decorator as independent feature."""
+"""Test `PipStepDecorator` as an independent feature."""
 import pytest
 
-from utils import ch_dir, env, run_flow  # noqa: I
+from utils import ch_dir, run_flow  # noqa: I
 
 flow_name = "{}/myproject/myproject/flows/{}.py".format
 
 
-def test_runs_local(temporary_installed_project):
-    with ch_dir(temporary_installed_project / "myproject"):
+def test_runs_local(temporary_project):
+    with ch_dir(temporary_project / "myproject"):
         run_flow(
-            flow_name(temporary_installed_project, "pip_flow_conda"),
+            flow_name(temporary_project, "pip_flow_conda"),
             environment="conda",
         )
 

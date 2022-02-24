@@ -4,16 +4,11 @@ import daps_utils  # This works on batch because of preinstall
 from metaflow import batch, conda, FlowSpec, step
 
 
-class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
+class MetaflowExtensionsPreinstallCondaFlow(FlowSpec, daps_utils.DapsFlowMixin):
     """Dummy batch flow for showing that bootstrap_command is working."""
 
     @step
     def start(self):
-        """Start the flow."""
-        self.next(self.a)
-
-    @step
-    def a(self):
         """Prepare chunks for batching."""
         self.items = [1]
         self.next(self.b, foreach="items")
@@ -21,9 +16,8 @@ class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
     @batch()
     @step
     def b(self):
-        """Show that daps_utils is installed, and that preinstall is run."""
+        """Show that daps_utils is installed via. preinstall."""
         self.something = self.input
-        # Show daps_utils is installed
         print("non-conda lib daps_utils installed: ", daps_utils.__version__)
 
         # Show preinstall has run (it adds a file called 'special-batch-file')
@@ -45,7 +39,7 @@ class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
     @batch()
     @step
     def e(self):
-        """Show that daps_utils is also installed."""
+        """Show that daps_utils is also installed via. preinstall in Conda."""
         # First show that we're in the env
         import sh
 
@@ -70,4 +64,4 @@ class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
 
 
 if __name__ == "__main__":
-    BatchFlow()
+    MetaflowExtensionsPreinstallCondaFlow()

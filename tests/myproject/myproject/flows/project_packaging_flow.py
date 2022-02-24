@@ -1,10 +1,12 @@
 from metaflow import FlowSpec, pip, step
 
 
-class MetaflowExtensionsTestFlow(FlowSpec):
-    """Flow for testing metaflow_extensions."""
+class MetaflowExtensionsProjectPackageFlow(FlowSpec):
+    """Dummy flow for testing `ProjectEnvironment.add_to_package` and
+    `PipStepDecorator` to achieve local packaging.
+    """
 
-    @pip(path="mine.txt")
+    @pip(path="requirements-project_packaging_flow.txt")
     @step
     def start(self):
         """Start flow."""
@@ -25,4 +27,4 @@ class MetaflowExtensionsTestFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    MetaflowExtensionsTestFlow()
+    MetaflowExtensionsProjectPackageFlow()

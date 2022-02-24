@@ -1,11 +1,10 @@
+"""Test utility functions."""
 import sys
 from unittest import mock
 
 import pytest
 
 from metaflow_extensions.utils import is_mflow_conda_environment, pip_install
-
-from utils import ch_dir, env  # noqa: I
 
 
 @pytest.mark.parametrize(

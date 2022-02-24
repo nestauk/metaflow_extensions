@@ -1,13 +1,9 @@
-"""Tests the `preinstall` Metaflow environment."""
-from pathlib import Path
-
+"""Tests the `preinstall` functionality of `ProjectEnvironment`."""
 import pytest
 
 from utils import ch_dir, env, run_flow  # noqa: I
 
-flow_name = lambda path, flow: Path(  # noqa
-    "{}/myproject/myproject/flows/{}.py".format(path, flow)
-)
+flow_name = "{}/myproject/myproject/flows/{}.py".format
 
 
 @pytest.mark.aws
