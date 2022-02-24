@@ -1,13 +1,7 @@
 from pathlib import Path
 
-import nuts_finder
+import tqdm  # This works on batch because preinstall-batch_flow.sh installs it
 from metaflow import batch, FlowSpec, step
-from nuts_finder import (
-    NutsFinder,
-)  # This works on batch because preinstall-batch_flow.sh installs it
-
-
-nf = NutsFinder()
 
 
 class MetaflowExtensionsPreinstallFlow(FlowSpec):
@@ -22,9 +16,9 @@ class MetaflowExtensionsPreinstallFlow(FlowSpec):
     @batch()
     @step
     def b(self):
-        """Show that nuts_finder is installed via. preinstall."""
+        """Show that tqdm is installed via. preinstall."""
         self.something = self.input
-        print("non-conda batch task has installed", nuts_finder.__version__)
+        print("non-conda batch task has installed", tqdm.__version__)
 
         # Show preinstall has run (it adds a file called 'special-batch-file')
         assert Path("special-batch-file").exists()

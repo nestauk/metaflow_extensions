@@ -17,9 +17,9 @@ def temporary_project_maker(tmpdir_factory, project_name):
     project_path = Path(__file__).parent / project_name
     temp = tmpdir_factory.mktemp("data-project")
     shutil.copytree(project_path, temp / project_name)
-    pip_install(sys.executable, "nuts-finder")
+    pip_install(sys.executable, "tqdm")
     yield temp
-    remove_pkg("nuts-finder")
+    remove_pkg("tqdm")
     shutil.rmtree(temp)
 
 

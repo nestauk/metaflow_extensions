@@ -1,10 +1,7 @@
 from pathlib import Path
 
-import nuts_finder
+import tqdm  # This works on batch because of preinstall
 from metaflow import batch, conda, FlowSpec, step
-from nuts_finder import NutsFinder  # This works on batch because of preinstall
-
-nf = NutsFinder()
 
 
 class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
@@ -19,9 +16,9 @@ class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
     @batch()
     @step
     def b(self):
-        """Show that nuts_finder is installed via. preinstall."""
+        """Show that tqdm is installed via. preinstall."""
         self.something = self.input
-        print("non-conda lib nuts_finder installed: ", nuts_finder.__version__)
+        print("non-conda lib tqdm installed: ", tqdm.__version__)
 
         # Show preinstall has run (it adds a file called 'special-batch-file')
         assert Path("special-batch-file").exists()
@@ -42,15 +39,15 @@ class MetaflowExtensionsPreinstallCondaFlow(FlowSpec):
     @batch()
     @step
     def e(self):
-        """Show that nuts_finder is also installed via. preinstall in Conda."""
+        """Show that tqdm is also installed via. preinstall in Conda."""
         # First show that we're in the env
         import sh
 
         self.something = self.input
         print("conda specific lib sh installed: ", sh.__version__)
 
-        # Next show that nuts_finder is not installed
-        print("non-conda lib nuts_finder installed: ", nuts_finder.__version__)
+        # Next show that tqdm is not installed
+        print("non-conda lib tqdm installed: ", tqdm.__version__)
 
         assert Path("special-batch-file").exists()
         self.next(self.f)

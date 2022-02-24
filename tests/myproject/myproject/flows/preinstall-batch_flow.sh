@@ -1,3 +1,3 @@
 #!/bin/bash
 touch special-batch-file
-pip install nuts-finder --quiet 1> /dev/null
+pip install tqdm --quiet 1> /dev/null
