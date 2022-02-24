@@ -120,9 +120,12 @@ For example, your code package will look like,
 
 #### My common utilities have dependencies I need to install
 
-Use `project` environment in combination with [`@pip`](#TODO), e.g. by decorating a flow step with `@pip(path=step_requirements.txt)` where `step_requirements.txt` is just `-e .` to indicate installing at the local directory.
+Use `project` environment in combination with [`@pip`](#TODO), e.g. by decorating a flow step with `@pip(path=step_requirements.txt)` where `step_requirements.txt` is just `.` to indicate installing at the local directory.
 
-:warning: When running on your local machine you must run a flow from the directory of your project root file in order for the `-e .` in `requirements.txt` to install your project! If you are running on your local machine but not using `--environment conda` then you can skip using `@pip` because you can install your project package in your development environment yourself.
+:warning: **Gotchas**:
+
+- When running on your local machine you must run a flow from the directory of your project root file in order for the `.` in `requirements.txt` to install your project!
+- If you are running on your local machine but not using `--environment conda` then you can skip using `@pip` because you can install your project package in your development environment yourself. Not skipping this may cause inconsistencies in your environment.
 
 ### "I want to install a dependency with pip because it isn't available with Conda"
 
