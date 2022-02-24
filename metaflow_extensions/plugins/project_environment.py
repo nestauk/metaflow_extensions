@@ -118,11 +118,6 @@ def prepare_step_wrapper(conda_step_prepare_step_environment: Callable) -> Calla
     return wrapped_prepare_step_environment
 
 
-# XXX - ProjectEnvironment.decospecs is never called if environment=conda!
-#       Patch it to add our decospecs too
-#       Awaiting fix in PR: https://github.com/Netflix/metaflow/pull/660
-CondaEnvironment.decospecs = lambda s: ("conda", *s.base_env.decospecs())
-
 # Force CondaEnvironment to pick up extra ProjectEnvironment.bootstrap_commands
 CondaEnvironment.bootstrap_commands = bootstrap_wrapper(
     CondaEnvironment.bootstrap_commands

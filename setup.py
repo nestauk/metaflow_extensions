@@ -9,7 +9,7 @@ setup(
     install_requires=REQUIRES,
     python_requires=">=3.7",
     packages=find_packages(),
-    version="0.1.0",
+    version="0.1.1",
     description="Nesta plugins for Metaflow (metaflow.org)",
     author="Nesta",
     license="MIT",
