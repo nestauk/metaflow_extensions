@@ -4,7 +4,6 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
-import sh
 
 
 from metaflow_extensions.utils import pip_install
@@ -19,7 +18,6 @@ def temporary_project_maker(tmpdir_factory, project_name):
     temp = tmpdir_factory.mktemp("data-project")
     shutil.copytree(project_path, temp / project_name)
     pip_install(sys.executable, "nuts-finder")
-    sh.git.init(temp)  # to support "daps-utils"-like projects
     yield temp
     remove_pkg("nuts-finder")
     shutil.rmtree(temp)
