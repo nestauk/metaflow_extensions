@@ -5,7 +5,7 @@ import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 
 @contextmanager
@@ -43,13 +43,13 @@ def run_flow(
     environment: Optional[str] = None,
     batch: bool = False,
     python: str = sys.executable,
-    extend_pythonpath: bool = True,
+    package_suffixes: Optional[List[str]] = None,
 ) -> subprocess.CompletedProcess:
     """Run Metaflow at `path`."""
     path = Path(path)
     cmd = [
         python,
-        str(path.name),
+        str(path),
         "--datastore",
         str(datastore),
         "--metadata",
@@ -57,27 +57,21 @@ def run_flow(
         "--no-pylint",
     ]
 
-    if batch:
-        cmd.extend(["--with", "batch"])
-
     if environment is not None:
         cmd.extend(["--environment", environment])
 
+    if package_suffixes is not None:
+        cmd.extend(["--package-suffixes", ",".join(package_suffixes)])
+
     cmd.append("run")
 
-    # DAPS projects need to be able to import {myproject}
-    # which we can figure out from the executable in this test.
-    # With that in mind, we specify PYTHONPATH here because {myproject}
-    # is not available at the point when daps_utils is imported.
-    env = dict(os.environ)
-    if extend_pythonpath:
-        pythonpath = str(path.parent.parent.parent) + ":" + env.get("PYTHONPATH", "")
-        env.update({"PYTHONPATH": pythonpath})
+    if batch:
+        cmd.extend(["--with", "batch"])
+
+    print(cmd)
 
     try:
-        out = subprocess.run(
-            cmd, capture_output=True, shell=False, check=True, cwd=path.parent, env=env
-        )
+        out = subprocess.run(cmd, capture_output=True, shell=False, check=True)
     except subprocess.CalledProcessError as e:
         logging.error(e.args)
         logging.error(f"stdout:\n {e.stdout.decode()}")

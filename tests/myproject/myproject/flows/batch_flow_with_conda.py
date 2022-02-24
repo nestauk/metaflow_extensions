@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import daps_utils  # This works on batch because of bootstrap_command
+import daps_utils  # This works on batch because of preinstall
 from metaflow import batch, conda, FlowSpec, step
 
 
@@ -18,7 +18,7 @@ class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
         self.items = [1]
         self.next(self.b, foreach="items")
 
-    @batch(queue="job-queue-nesta-metaflow-test")
+    @batch()
     @step
     def b(self):
         """Show that daps_utils is installed, and that preinstall is run."""
@@ -42,7 +42,7 @@ class BatchFlow(FlowSpec, daps_utils.DapsFlowMixin):
         self.next(self.e, foreach="items")
 
     @conda(libraries={"sh": "1.14.2"})
-    @batch(queue="job-queue-nesta-metaflow-sandbox")
+    @batch()
     @step
     def e(self):
         """Show that daps_utils is also installed."""

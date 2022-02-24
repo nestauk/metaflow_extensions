@@ -1,6 +1,5 @@
-metaflow>=2.4.1
+metaflow<2.5
 pip>=21.3.1
-sh
 flake8
 darglint
 pep8-naming
@@ -13,4 +12,3 @@ flake8-bugbear
 black
 pytest
 pre-commit
-daps_utils @ git+https://github.com/nestauk/daps_utils@dev

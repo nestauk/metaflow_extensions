@@ -1,9 +1,10 @@
-from metaflow import FlowSpec, step
+from metaflow import FlowSpec, pip, step
 
 
 class MetaflowExtensionsTestFlow(FlowSpec):
     """Flow for testing metaflow_extensions."""
 
+    @pip(path="mine.txt")
     @step
     def start(self):
         """Start flow."""

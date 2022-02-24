@@ -46,9 +46,7 @@ def zip_stripped_root(
     root: os.PathLike, paths: Iterable[str]
 ) -> Iterator[Tuple[str, str]]:
     """Return tuples of path and path with `root` stripped for paths in `path`."""
-    return map(
-        lambda item: (item, str(Path("pkg_self") / Path(item).relative_to(root))), paths
-    )
+    return map(lambda item: (item, str(Path(item).relative_to(root))), paths)
 
 
 def is_mflow_conda_environment() -> bool:
@@ -86,7 +84,7 @@ def pip_install(
         executable,
         "install",
         *map(shlex.quote, paths),
-        "--quiet",
+        # "--quiet",
         *map(shlex.quote, args),
         stdout=subprocess.DEVNULL,
     )

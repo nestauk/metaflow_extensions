@@ -5,13 +5,13 @@ Implementation notes:
   tasktime environment (not the runtime environment) - e.g. the function will
   run on batch, not on the machine orchestrating the batch run.
 - StepDecorator.task_post_step and StepDecorators.task_exception delete the
-  `conda.dependencies` file for the flow in the local `.metaflow` store, this
-  ensures that subsequent steps that use the same conda environment are not
-  polluted by this decorator
+  `conda.dependencies` file for the flow in the local `.metaflow` store if the
+  step that just ran was run locally in a conda environment. This ensures that
+  subsequent steps that use the same conda environment are not polluted by
+  this decorator.
 """
 import sys
 from pathlib import Path
-from subprocess import CalledProcessError
 from typing import Dict, List
 
 from metaflow.decorators import StepDecorator
@@ -19,12 +19,6 @@ from metaflow.exception import MetaflowException
 from metaflow.flowspec import FlowSpec
 from metaflow.graph import FlowGraph
 from metaflow.plugins.conda.conda_step_decorator import CondaStepDecorator
-
-from metaflow_extensions.utils import (
-    is_mflow_conda_environment,
-    pip,
-    pip_install,
-)
 
 
 class PipStepDecorator(StepDecorator):
@@ -43,16 +37,25 @@ class PipStepDecorator(StepDecorator):
         ...
     ```
 
+    Only one of `libraries` or `path` may be passed.
+
     Parameters:
         path (Path): Relative path (compared to flow file) to `requirements.txt`
           formatted file.
         libraries (dict): Keys are pypi packages, values are versions (or
           version constraints).
+        safe (bool): If False, Conda environments won't be safely recreated on
+          the local runtime to avoid polluted environments.
     """
 
     name = "pip"
 
-    defaults = {"path": None, "libraries": None}
+    defaults = {"path": None, "libraries": None, "safe": "true"}
+
+    @property
+    def is_safe_mode(self):
+        """Is the decorator used in safe mode?"""
+        return False if self.attributes["safe"] in [False, "false"] else True
 
     def task_pre_step(
         self,
@@ -91,19 +94,22 @@ class PipStepDecorator(StepDecorator):
         self, step_name, flow, graph, retry_count, max_user_code_retries
     ):
         """After step has run, ensure local conda environment is fresh."""
-        ensure_conda_integrity(step_name, flow, graph)
+        ensure_conda_integrity(step_name, flow, graph, self.is_safe_mode)
         return
 
     def task_exception(
         self, exception, step_name, flow, graph, retry_count, max_user_code_retries
     ):
         """After step exception, ensure local conda environment is fresh."""
-        ensure_conda_integrity(step_name, flow, graph)
+        ensure_conda_integrity(step_name, flow, graph, self.is_safe_mode)
         return
 
 
-def ensure_conda_integrity(step_name: str, flow: FlowSpec, graph: FlowGraph) -> None:
+def ensure_conda_integrity(
+    step_name: str, flow: FlowSpec, graph: FlowGraph, safe: bool
+) -> None:
     """If using conda and local runtime, ensure subsequent steps get clean env."""
+    from metaflow_extensions.utils import is_mflow_conda_environment
 
     def _is_task_local():
         from metaflow import __path__ as metaflow_path
@@ -114,7 +120,14 @@ def ensure_conda_integrity(step_name: str, flow: FlowSpec, graph: FlowGraph) -> 
         step_decorators = graph.nodes[step_name].decorators
         # Triggers re-creation of Conda env after extra installation actions
         # has possibly 'polluted' it.
-        clear_local_conda_cache(flow.name, step_decorators)
+        if safe:
+            print("Safe mode: triggering Conda re-creation after usage with @pip")
+            clear_local_conda_cache(flow.name, step_decorators)
+        else:
+            print(
+                "Unsafe mode: Usage of Metaflow's Conda environments with @pip"
+                " on a local runtime may cause inconsistencies."
+            )
     return
 
 
@@ -150,6 +163,8 @@ def fill_constraint(pkg_version: str) -> str:
 
 def pip_install_libraries(libraries: Dict[str, str]) -> None:
     """Install `libraries` with `pip`."""
+    from metaflow_extensions.utils import pip_install
+
     pip_install(
         sys.executable, tuple(k + fill_constraint(v) for k, v in libraries.items())
     )
@@ -157,17 +172,14 @@ def pip_install_libraries(libraries: Dict[str, str]) -> None:
 
 
 def _ensure_consistent_pip_deps():
-    try:
-        pip(sys.executable, "check", capture_output=True)
-    except CalledProcessError as exc:
-        err_msg = f"""Inconsistent environment when using @pip:
-            > {exc.stdout.decode().strip()}
-            > Pass `check=False` to ignore this consistency check
-            """
-        raise MetaflowException(err_msg) from None
+    from metaflow_extensions.utils import pip
+
+    pip(sys.executable, "check", capture_output=True)
 
 
 def pip_install_reqs(path: Path) -> None:
     """`pip install -r <path>`."""
+    from metaflow_extensions.utils import pip_install
+
     pip_install(sys.executable, ("-r", str(path)))
     _ensure_consistent_pip_deps()
