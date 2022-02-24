@@ -164,6 +164,10 @@ The bash environment variable `MFPYTHON` is set to the python binary that will b
 
 `$MFPYTHON -m pip install daps_utils@git+https://github.com/nestauk/daps_utils@dev --quiet 1> /dev/null`
 
+## Examples
+
+Look at `tests/myproject` for some examples.
+
 ## For contributors
 
 ### Setup
