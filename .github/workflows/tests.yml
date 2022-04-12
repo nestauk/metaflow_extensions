@@ -54,7 +54,7 @@ jobs:
 
           mkdir -p "$HOME/.metaflowconfig"
 
-          aws secretsmanager get-secret-value --secret-id ds-infra/Metaflow/Config --query SecretString --output text > "$HOME/.metaflowconfig/config.json"
+          aws secretsmanager get-secret-value --secret-id dap-infra/metaflow/config --query SecretString --output text > "$HOME/.metaflowconfig/config.json"
 
       - name: Run pytest
         run: |
