@@ -109,14 +109,15 @@ def ensure_conda_integrity(
     step_name: str, flow: FlowSpec, graph: FlowGraph, safe: bool
 ) -> None:
     """If using conda and local runtime, ensure subsequent steps get clean env."""
-    from metaflow_extensions.utils import is_mflow_conda_environment
+    from metaflow.metaflow_config import DEFAULT_ENVIRONMENT
+    from metaflow_extensions.nesta.utils import is_mflow_conda_environment
 
     def _is_task_local():
         from metaflow import __path__ as metaflow_path
 
         return not (metaflow_path == "/metaflow/metaflow")
 
-    if _is_task_local() and is_mflow_conda_environment():
+    if _is_task_local() and is_mflow_conda_environment(sys.argv, DEFAULT_ENVIRONMENT):
         step_decorators = graph.nodes[step_name].decorators
         # Triggers re-creation of Conda env after extra installation actions
         # has possibly 'polluted' it.
@@ -163,7 +164,7 @@ def fill_constraint(pkg_version: str) -> str:
 
 def pip_install_libraries(libraries: Dict[str, str]) -> None:
     """Install `libraries` with `pip`."""
-    from metaflow_extensions.utils import pip_install
+    from metaflow_extensions.nesta.utils import pip_install
 
     pip_install(
         sys.executable, tuple(k + fill_constraint(v) for k, v in libraries.items())
@@ -172,14 +173,14 @@ def pip_install_libraries(libraries: Dict[str, str]) -> None:
 
 
 def _ensure_consistent_pip_deps():
-    from metaflow_extensions.utils import pip
+    from metaflow_extensions.nesta.utils import pip
 
     pip(sys.executable, "check", capture_output=True)
 
 
 def pip_install_reqs(path: Path) -> None:
     """`pip install -r <path>`."""
-    from metaflow_extensions.utils import pip_install
+    from metaflow_extensions.nesta.utils import pip_install
 
     pip_install(sys.executable, ("-r", str(path)))
     _ensure_consistent_pip_deps()

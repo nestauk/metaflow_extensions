@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 
-from metaflow_extensions.utils import pip_install
+from metaflow_extensions.nesta.utils import pip_install
 from utils import remove_pkg  # noqa: I
 
 MYPROJECT_PATH = Path(__file__).parent / "myproject"
