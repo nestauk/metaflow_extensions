@@ -8,8 +8,6 @@ import sys
 from pathlib import Path
 from typing import Iterable, Iterator, List, Optional, Tuple, Union
 
-REMOTE_RUNTIMES = ["batch", "kubernetes"]
-
 
 def has_project_file(path: Path) -> bool:
     """True if `path` contains metaflow project file."""
@@ -48,15 +46,7 @@ def zip_stripped_root(
     root: os.PathLike, paths: Iterable[str]
 ) -> Iterator[Tuple[str, str]]:
     """Return tuples of path and path with `root` stripped for paths in `path`."""
-    return map(lambda item: (item, item.replace(str(root), "", 1)), paths)
-
-
-REMOTE_RUNTIMES = ["batch", "kubernetes"]
-
-
-def is_task_local() -> bool:
-    """True if task is running on the same machine as the local orchestrator."""
-    return not any(f"--with {x}" in " ".join(sys.argv) for x in REMOTE_RUNTIMES)
+    return map(lambda item: (item, str(Path(item).relative_to(root))), paths)
 
 
 def is_mflow_conda_environment() -> bool:
@@ -69,11 +59,6 @@ def is_mflow_conda_environment() -> bool:
         or "--environment conda" in joined_argv
         or "--with conda" in joined_argv
     )
-
-
-def is_task_running_in_local_env() -> bool:
-    """True if the task's environment is the same as the runtime environment."""
-    return is_task_local() and not is_mflow_conda_environment()
 
 
 def pip(
@@ -99,7 +84,7 @@ def pip_install(
         executable,
         "install",
         *map(shlex.quote, paths),
-        "--quiet",
+        # "--quiet",
         *map(shlex.quote, args),
         stdout=subprocess.DEVNULL,
     )

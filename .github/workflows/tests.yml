@@ -34,13 +34,7 @@ jobs:
       - name: Install Mac dependencies and permissions
         if: runner.os == 'macOS'
         run: |
-          brew install git-crypt coreutils
           sudo chown -R $UID $CONDA
-
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update -y && sudo apt-get install -y git-crypt
 
       - name: Install cross-platform dependencies
         run: |
@@ -48,12 +42,6 @@ jobs:
           $CONDA/bin/python -m pip install -r requirements.txt
           $CONDA/bin/python -m pip install .
           conda config --add channels conda-forge
-
-      - name: Install empty conda env for test_utils.test_get_conda_python_executable
-        run: conda create -n foo python=3.8 -y
-
-      - name: Install daps-utils in the "main" user env for test_utils.test_get_pkg_spec
-        run: $CONDA/bin/python -m pip install git+https://github.com/nestauk/daps_utils@dev
 
       - name: Git config
         run: |
@@ -64,27 +52,9 @@ jobs:
         run: |
           pip install awscli
 
-          export PROJECT_DIR="$(pwd)"
-
-          cd /tmp
-
-          aws s3 cp s3://nesta-production-config/research_daps.key .
-
-          git clone https://www.github.com/nestauk/research_daps
-          cd research_daps
-
-          # Unencrypt research daps
-          git-crypt unlock "/tmp/research_daps.key" &> /dev/null
-
-          # Copy metaflow config
           mkdir -p "$HOME/.metaflowconfig"
-          cp research_daps/config/metaflowconfig/config.json "$HOME/.metaflowconfig/config.json"
 
-          # Clean up
-          rm -rf /tmp/research_daps
-          rm /tmp/research_daps.key
-
-          cd "$PROJECT_DIR"
+          aws secretsmanager get-secret-value --secret-id dap-infra/metaflow/config --query SecretString --output text > "$HOME/.metaflowconfig/config.json"
 
       - name: Run pytest
         run: |

@@ -9,22 +9,6 @@ from typing import Dict
 
 from metaflow.metaflow_config import from_conf
 
-# Override default metaflow environment
-DEFAULT_ENVIRONMENT = from_conf("METAFLOW_DEFAULT_ENVIRONMENT", "project")
-
-# Override default package suffixes
-_suffix_list = ",".join(
-    [
-        ".py",  # Source files
-        ".yaml",  # Config files
-        ".md",  # E.g. when setup.py reads README.md
-        ".txt",  # E.g. requirements.txt
-        ".sh",  # E.g. pre-install.sh
-        "VERSION",  # present in DAPS projects
-    ]
-)
-DEFAULT_PACKAGE_SUFFIXES = from_conf("METAFLOW_DEFAULT_PACKAGE_SUFFIXES", _suffix_list)
-
 # Path to the client cache
 CLIENT_CACHE_PATH = from_conf("METAFLOW_CLIENT_CACHE_PATH", "/tmp/metaflow_client")
 
@@ -54,8 +38,3 @@ def get_pinned_conda_libs(python_version: str) -> Dict[str, str]:
 # Defines root of a project for ProjectEnvironment
 _project_files = ["setup.py", "pyproject.toml"]
 PROJECT_FILES = from_conf("METAFLOW_PROJECT_FILES", _project_files)
-
-
-# Defines packages that should be pip installed prior to all execution
-_preinstall_pkgs = "daps-utils"
-PREINSTALL_PKGS = from_conf("METAFLOW_PREINSTALL_PKGS", _preinstall_pkgs).split(",")
