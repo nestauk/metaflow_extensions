@@ -2,12 +2,12 @@
 from typing import List
 
 from .pip_step_decorator import PipStepDecorator
-from .project_environment import ProjectEnvironment
+from .preinstall_environment import PreinstallEnvironment
 
 
 FLOW_DECORATORS = []
 STEP_DECORATORS = [PipStepDecorator]
-ENVIRONMENTS = [ProjectEnvironment]
+ENVIRONMENTS = [PreinstallEnvironment]
 METADATA_PROVIDERS = []
 SIDECARS = {}
 LOGGING_SIDECARS = {}

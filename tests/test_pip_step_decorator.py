@@ -1,7 +1,8 @@
 """Test `PipStepDecorator` as an independent feature."""
 import pytest
 
-from utils import ch_dir, run_flow  # noqa: I
+from metaflow_extensions.nesta.utils import ch_dir
+from utils import run_flow  # noqa: I
 
 flow_name = "{}/myproject/myproject/flows/{}.py".format
 

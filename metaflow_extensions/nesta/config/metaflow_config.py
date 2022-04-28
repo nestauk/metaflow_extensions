@@ -12,7 +12,3 @@ CLIENT_CACHE_PATH = from_conf("METAFLOW_CLIENT_CACHE_PATH", "/tmp/metaflow_clien
 
 # Maximum size (in bytes) of the cache
 CLIENT_CACHE_MAX_SIZE = from_conf("METAFLOW_CLIENT_CACHE_MAX_SIZE", "10000")
-
-# Defines root of a project for ProjectEnvironment
-_project_files = ["setup.py", "pyproject.toml"]
-PROJECT_FILES = from_conf("METAFLOW_PROJECT_FILES", _project_files)

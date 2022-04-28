@@ -13,6 +13,7 @@ Nesta's plugins for [Metaflow](metaflow.org).
 For example, say you have the following module structure,
 
 ```
+myproject
 ├── setup.py
 ├── common/
 │   ├── __init__.py
@@ -80,52 +81,18 @@ With the Conda Metaflow environment (`--environment conda`) and/or running on a 
 
 2. On AWS and/or with `--environment conda`, then even if the files were present then `common` isn't installed or on your `PYTHONPATH`.
 
-This libraries' `project` environment solves this problem, you can use it by adding `--environment project` when you run a Metaflow (If using `conda` as well you will need to set the environment variable `METAFLOW_DEFAULT_ENVIRONMENT` to `project`).
-
-When creating a job package, `project` environment will search the parent folders of your flow for a "project root file" - either a `setup.py` or `pyproject.toml` file (you can configure what files it looks for by setting `METAFLOW_PROJECT_FILES` to be a comma-delimited list of files to look for).
-If a project root file is found then sibling/children of the project root file (that match `--package-suffixes`) will be added to the job package.
-
-:warning: **Careful:** Files may conflict! E.g. if there is a `requirements.txt` file at the top-level of your project and at the level of your flow, these will conflict!
-
-For example, your code package will look like,
-
-```
-.
-│ # Siblings/children of the flow:
-├── flow_1.py
-├── ...
-├── flow_N.py
-├── requirements.txt # Filename clash! This comes from the flow-level
-│ # Added by Metaflow:
-├── metaflow_extensions/
-├── metaflow/
-├── INFO
-│ # Siblings/children of the project root file (Added by project environment):
-├── setup.py  # Finding this project root file determined what was packaged
-├── requirements.txt # Filename clash! This comes from the top-level
-├── common/
-│   ├── __init__.py
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── collections.py
-│   │   └── aws.py
-│   └── foo/
-│       ├── __init__.py
-│       └── bar.py
-└── pipeline/
-    ├── ...
-```
+As of [Metaflow `2.5.2`](https://github.com/Netflix/metaflow/releases/tag/2.5.2), Metaflow follows [symlinks](https://en.wikipedia.org/wiki/Symbolic_link) when creating code packages.
+Running `ln -s ../../common/ .` from `pipeline/collect/` will symlink `common/` into that folder meaning that Metaflow will package `common/`, making it importable from the flows in `pipeline/collect/`.
+Use this built-in functionality to achieve this use case!
+(For Metaflow `<2.5`, `metaflow_extensions<=0.2` provided the `project` environment for making `common/` available in a remote compute environment - this has since been removed)
 
 :bulb: **Tip:** To check what files are being added to the metaflow job package you can run `$python path/to/flow.py package list`
 
 #### My common utilities have dependencies I need to install
 
-Use `project` environment in combination with [`@pip`](#TODO), e.g. by decorating a flow step with `@pip(path=step_requirements.txt)` where `step_requirements.txt` is just `.` to indicate installing at the local directory.
+Use symlinking (e.g. `ln -s ../../../myproject pkg` from the flow directory) in combination with [`@pip`](#TODO), e.g. by decorating a flow step with `@pip(path=step_requirements.txt)` where `step_requirements.txt` contains `-e pkg/`
 
-:warning: **Gotchas**:
-
-- When running on your local machine you must run a flow from the directory of your project root file in order for the `.` in `requirements.txt` to install your project!
-- If you are running on your local machine but not using `--environment conda` then you can skip using `@pip` because you can install your project package in your development environment yourself. Not skipping this may cause inconsistencies in your environment.
+Note: If you are running on your local machine but not using `--environment conda` then you can skip using `@pip` because you can install your project package in your development environment yourself.
 
 ### "I want to install a dependency with pip because it isn't available with Conda"
 
@@ -150,11 +117,15 @@ You can read the documentation by either:
 1. Reading the [docstrings in the source](metaflow_extensions/plugins/pip_step_decorator.py)
 2. `from metaflow import pip; help(pip.args[0])` - Metaflow partially applies decorators which makes accessing docs a little harder.
 
+`@pip` executes the underlying `pip` commands from the flow directory to avoid inconsistent behaviour based on where a flow is executed from.
+
 ### "I want to install something on a Batch machine that isn't available via. pip or Conda but I don't want to build and maintain my own Docker image"
 
-The `project` environment has another trick up it's sleeve - preinstall scripts!
+The `preinstall` environment provided by this library enables you to do this!
 
-Specifically named files in the flow directory (or at the project file level) are run in remote compute environments such as AWS Batch before the flow file begins executing:
+Enable it by adding `--environment preinstall` when you run a Metaflow (If using `conda` as well you will need to set the environment variable `METAFLOW_DEFAULT_ENVIRONMENT` to `preinstall`).
+
+Specifically named files in the flow directory are run in remote compute environments such as AWS Batch before the flow file begins executing:
 
 - `preinstall.sh` - Will run regardless of flow and step
 - `preinstall-<flow name>.sh` - Will run for flow named `<flow name>`
@@ -186,12 +157,6 @@ Look at `tests/myproject` for some examples.
 
 ### How the metaflow extension mechanism works
 
-Metaflow looks for a package called `metaflow_extensions`.
+Some documentation on the extension mechanism can be found at https://github.com/Netflix/metaflow-extensions-template.
 
-`metaflow_extensions.config.metaflow_config` overrides `metaflow.metaflow_config`.
-
-`metaflow_extensions.plugins` are available as metaflow imports by defining: `FLOW_DECORATORS`, `STEP_DECORATORS`, `ENVIRONMENTS`, `METADATA_PROVIDERS`, `SIDECARS`, `LOGGING_SIDECARS`, `MONITOR_SIDECARS`, and `get_plugin_cli()`.
-
-(source: https://gitter.im/metaflow_org/community?at=5f99d01ec6fe0131d4bfea36)
-
-This mechanism is current undocumented and is not stable but changes shouldn't be too hard to maintain.
+The metaflow extensions mechanism is not currently public or stable, therefore additions to this library should only be made out of necessity and kept as simple as possible!

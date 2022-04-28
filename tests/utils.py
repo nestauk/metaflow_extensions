@@ -8,17 +8,6 @@ from pathlib import Path
 from typing import List, Optional
 
 
-@contextmanager
-def ch_dir(path: os.PathLike) -> None:
-    """Context Manager to change directory to `path`."""
-    cwd = os.getcwd()
-    os.chdir(path)
-    try:
-        yield os.getcwd()
-    finally:
-        os.chdir(cwd)
-
-
 def remove_pkg(pkg_name: str) -> None:
     """Uninstall `pkg_name`."""
     subprocess.run(

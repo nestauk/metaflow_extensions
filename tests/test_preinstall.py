@@ -1,7 +1,8 @@
-"""Tests the `preinstall` functionality of `ProjectEnvironment`."""
+"""Tests the `preinstall` Metaflow environment."""
 import pytest
 
-from utils import ch_dir, env, run_flow  # noqa: I
+from metaflow_extensions.nesta.utils import ch_dir
+from utils import env, run_flow  # noqa: I
 
 flow_name = "{}/myproject/myproject/flows/{}.py".format
 
@@ -13,14 +14,14 @@ def test_runs_some_batch(temporary_project):
             flow_name(temporary_project, "batch_flow"),
             datastore="s3",
             package_suffixes=[".py", ".txt", ".sh"],
-            environment="project",
+            environment="preinstall",
         )
 
 
 @pytest.mark.aws
 def test_runs_all_batch_conda(temporary_project):
     with ch_dir(temporary_project / "myproject"):
-        with env(METAFLOW_DEFAULT_ENVIRONMENT="project"):
+        with env(METAFLOW_DEFAULT_ENVIRONMENT="preinstall"):
             run_flow(
                 flow_name(temporary_project, "batch_flow_with_conda"),
                 datastore="s3",
